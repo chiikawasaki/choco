@@ -1,12 +1,16 @@
 import { Button, Input, InputGroup } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { Plus } from "lucide-react";
+import { AlignJustify } from "lucide-react";
 
 export default function Home() {
   return (
     <div>
-      <h1>Hello</h1>
-      <Button colorScheme="blue">Button</Button>
-      <Button
+      <AlignJustify
+        size={25}
+        style={{ position: "absolute", top: "6px", left: "10px" }}
+      />
+         <Button
         size="sm"
         variant="subtle"
         bg="#4338CA"
@@ -30,6 +34,16 @@ export default function Home() {
           css={{ borderRadius: "30px" }}
         />
       </InputGroup>
+        <Button
+        bg="#4338CA"
+        css={{
+          width: "70px",
+          height: "70px",
+          borderRadius: "50%",
+        }}
+      >
+        <Plus color="white" />
+      </Button>
     </div>
   );
 }
