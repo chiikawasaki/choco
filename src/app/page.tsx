@@ -7,10 +7,6 @@ import { AlignJustify } from "lucide-react";
 export default function Home() {
   return (
     <div>
-      <AlignJustify
-        size={25}
-        style={{ position: "absolute", top: "6px", left: "10px" }}
-      />
       <Drawer.Root placement={"start"}>
         <Drawer.Trigger asChild>
           <AlignJustify
@@ -66,7 +62,7 @@ export default function Home() {
           css={{ borderRadius: "30px" }}
         />
       </InputGroup>
-        <Button
+      <Button
         bg="#4338CA"
         css={{
           width: "70px",
