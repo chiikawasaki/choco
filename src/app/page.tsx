@@ -1,11 +1,14 @@
 import { Button } from "@chakra-ui/react";
+import { AlignJustify } from "lucide-react";
 
 export default function Home() {
   return (
     <div>
-      <h1>Hello</h1>
-      <Button colorScheme="blue">Button</Button>
-      <Button
+      <AlignJustify
+        size={25}
+        style={{ position: "absolute", top: "6px", left: "10px" }}
+      />
+         <Button
         size="sm"
         variant="subtle"
         bg="#4338CA"
@@ -14,6 +17,7 @@ export default function Home() {
       >
         保存する
       </Button>
+
     </div>
   );
 }
