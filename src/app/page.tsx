@@ -1,4 +1,4 @@
-import { Button, Input, InputGroup } from "@chakra-ui/react";
+import { Button, Input, InputGroup, Textarea } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
@@ -10,7 +10,7 @@ export default function Home() {
         size={25}
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
-         <Button
+      <Button
         size="sm"
         variant="subtle"
         bg="#4338CA"
@@ -34,7 +34,7 @@ export default function Home() {
           css={{ borderRadius: "30px" }}
         />
       </InputGroup>
-        <Button
+      <Button
         bg="#4338CA"
         css={{
           width: "70px",
@@ -44,6 +44,16 @@ export default function Home() {
       >
         <Plus color="white" />
       </Button>
+      <Textarea
+        placeholder="メモを入力"
+        color="black"
+        css={{
+          backgroundColor: "Pink",
+          class: "square_box",
+          width: "40%",
+          paddingBottom: "30%",
+        }}
+      />
     </div>
   );
 }
