@@ -1,4 +1,6 @@
 import { Button, CloseButton, Drawer, Portal } from "@chakra-ui/react";
+import { Input, InputGroup } from "@chakra-ui/react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
 
@@ -36,7 +38,22 @@ export default function Home() {
       >
         保存する
       </Button>
-      <Button
+      <InputGroup
+        endElement={
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <Search />
+            <SlidersHorizontal />
+          </div>
+        }
+      >
+        <Input
+          placeholder="キーワードを入力"
+          size="sm"
+          color="white"
+          css={{ borderRadius: "30px" }}
+        />
+      </InputGroup>
+        <Button
         bg="#4338CA"
         css={{
           width: "70px",
