@@ -1,4 +1,5 @@
 import { Button } from "@chakra-ui/react";
+import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
 
 export default function Home() {
@@ -17,7 +18,16 @@ export default function Home() {
       >
         保存する
       </Button>
-
+        <Button
+        bg="#4338CA"
+        css={{
+          width: "70px",
+          height: "70px",
+          borderRadius: "50%",
+        }}
+      >
+        <Plus color="white" />
+      </Button>
     </div>
   );
 }
