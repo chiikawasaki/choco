@@ -51,10 +51,10 @@ export default function Home() {
       >
         <Plus color="white" />
       </Button>
-      <Card.Root width="320px">
+      <Card.Root width="320px" bg="pink">
         <Card.Body gap="2">
           <Card.Title mt="2">メモタイトル</Card.Title>
-          <Card.Description>
+          <Card.Description color="black">
             ここにメモの内容を入力してください。
           </Card.Description>
         </Card.Body>
