@@ -1,4 +1,11 @@
-import { Button, Input, InputGroup, Textarea } from "@chakra-ui/react";
+import {
+  Avatar,
+  Button,
+  Card,
+  Input,
+  InputGroup,
+  Textarea,
+} from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
@@ -44,16 +51,13 @@ export default function Home() {
       >
         <Plus color="white" />
       </Button>
-      <Textarea
-        placeholder="メモを入力"
-        color="black"
-        css={{
-          backgroundColor: "Pink",
-          class: "square_box",
-          width: "40%",
-          paddingBottom: "30%",
-        }}
-      />
+      <Card.Root width="320px">
+        <Card.Body gap="2">
+          <Card.Title mt="2">メモタイトル</Card.Title>
+          <Card.Description>メモの内容を入力してください。</Card.Description>
+        </Card.Body>
+        <Card.Footer justifyContent="flex-end"></Card.Footer>
+      </Card.Root>
     </div>
   );
 }
