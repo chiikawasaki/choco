@@ -54,9 +54,7 @@ export default function Home() {
       <Card.Root width="320px">
         <Card.Body gap="2">
           <Card.Title mt="2">メモタイトル</Card.Title>
-          <Card.Description>
-            ここにメモの内容を入力してください。
-          </Card.Description>
+          <Card.Description>ここにメモの内容を入力。</Card.Description>
         </Card.Body>
         <Card.Footer justifyContent="flex-end"></Card.Footer>
       </Card.Root>
