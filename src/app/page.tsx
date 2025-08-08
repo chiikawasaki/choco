@@ -3,6 +3,7 @@ import { Input, InputGroup } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
+import CustomDrawer from "./sidebar";
 
 export default function Home() {
   return (
@@ -11,24 +12,7 @@ export default function Home() {
         size={25}
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
-      <Drawer.Root placement={"start"}>
-        <Drawer.Trigger asChild>
-          <AlignJustify
-            size={25}
-            style={{ position: "absolute", top: "6px", left: "10px" }}
-          />
-        </Drawer.Trigger>
-        <Portal>
-          <Drawer.Backdrop />
-          <Drawer.Positioner>
-            <Drawer.Content style={{ backgroundColor: "#e0f7fa" }}>
-              <Drawer.CloseTrigger asChild>
-                <CloseButton size="sm" />
-              </Drawer.CloseTrigger>
-            </Drawer.Content>
-          </Drawer.Positioner>
-        </Portal>
-      </Drawer.Root>
+      <CustomDrawer></CustomDrawer>
       <Button
         size="sm"
         variant="subtle"
