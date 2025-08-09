@@ -1,5 +1,12 @@
-import { Button, CloseButton, Drawer, Portal } from "@chakra-ui/react";
-import { Input, InputGroup } from "@chakra-ui/react";
+import {
+  Avatar,
+  Button,
+  Card,
+  Input,
+  InputGroup,
+  Textarea,
+} from "@chakra-ui/react";
+import { CloseButton, Drawer, Portal } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
@@ -72,6 +79,15 @@ export default function Home() {
       >
         <Plus color="white" />
       </Button>
+      <Card.Root width="320px" bg="pink">
+        <Card.Body gap="2">
+          <Card.Title mt="2">メモタイトル</Card.Title>
+          <Card.Description color="black">
+            ここにメモの内容を入力してください。
+          </Card.Description>
+        </Card.Body>
+        <Card.Footer justifyContent="flex-end"></Card.Footer>
+      </Card.Root>
     </div>
   );
 }
