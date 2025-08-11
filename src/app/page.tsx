@@ -72,6 +72,9 @@ export default function Home() {
       <Button
         bg="#4338CA"
         css={{
+          position: "fixed",
+          bottom: "5%",
+          right: "2%",
           width: "70px",
           height: "70px",
           borderRadius: "50%",
