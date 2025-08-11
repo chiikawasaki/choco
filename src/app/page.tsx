@@ -1,9 +1,9 @@
-import { Button, CloseButton, Drawer, Portal } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Input, InputGroup } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
-import CustomDrawer from "./sidebar";
+import Sidebar from "./Sidebar";
 
 export default function Home() {
   return (
@@ -12,7 +12,7 @@ export default function Home() {
         size={25}
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
-      <CustomDrawer></CustomDrawer>
+      <Sidebar />
       <Button
         size="sm"
         variant="subtle"
@@ -37,7 +37,7 @@ export default function Home() {
           css={{ borderRadius: "30px" }}
         />
       </InputGroup>
-        <Button
+      <Button
         bg="#4338CA"
         css={{
           width: "70px",

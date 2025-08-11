@@ -1,8 +1,7 @@
-import React from "react";
 import { Drawer, Portal, CloseButton } from "@chakra-ui/react";
 import { AlignJustify } from "lucide-react";
 
-const CustomDrawer = () => {
+const Sidebar = () => {
   return (
     <Drawer.Root placement={"start"}>
       <Drawer.Trigger asChild>
@@ -14,7 +13,7 @@ const CustomDrawer = () => {
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
-          <Drawer.Content style={{ backgroundColor: "#e0f7fa" }}>
+          <Drawer.Content css={{ backgroundColor: "#e0f7fa" }}>
             <Drawer.CloseTrigger asChild>
               <CloseButton size="sm" />
             </Drawer.CloseTrigger>
@@ -25,4 +24,4 @@ const CustomDrawer = () => {
   );
 };
 
-export default CustomDrawer;
+export default Sidebar;
