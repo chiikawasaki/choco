@@ -1,7 +1,6 @@
 import { Button } from "@chakra-ui/react";
-import { Bold, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
-import { PiFileXDuotone, PiX } from "react-icons/pi";
 
 export default function Home() {
   return (
