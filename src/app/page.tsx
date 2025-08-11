@@ -1,6 +1,7 @@
 import { Button } from "@chakra-ui/react";
-import { Plus } from "lucide-react";
+import { Bold, Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
+import { PiFileXDuotone, PiX } from "react-icons/pi";
 
 export default function Home() {
   return (
@@ -9,7 +10,7 @@ export default function Home() {
         size={25}
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
-         <Button
+      <Button
         size="sm"
         variant="subtle"
         bg="#4338CA"
@@ -18,9 +19,12 @@ export default function Home() {
       >
         保存する
       </Button>
-        <Button
+      <Button
         bg="#4338CA"
         css={{
+          position: "fixed",
+          bottom: "5%",
+          right: "2%",
           width: "70px",
           height: "70px",
           borderRadius: "50%",
