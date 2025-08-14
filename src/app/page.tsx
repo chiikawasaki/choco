@@ -11,6 +11,7 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { Plus } from "lucide-react";
 import { AlignJustify } from "lucide-react";
 import Sidebar from "./Sidebar";
+import Searchbar from "./Searchbar";
 
 export default function Home() {
   return (
@@ -29,21 +30,7 @@ export default function Home() {
       >
         保存する
       </Button>
-      <InputGroup
-        endElement={
-          <div style={{ display: "flex", gap: "0.5rem" }}>
-            <Search />
-            <SlidersHorizontal />
-          </div>
-        }
-      >
-        <Input
-          placeholder="キーワードを入力"
-          size="sm"
-          color="white"
-          css={{ borderRadius: "30px" }}
-        />
-      </InputGroup>
+      <Searchbar />
       <Button
         bg="#4338CA"
         css={{
