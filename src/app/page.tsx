@@ -30,7 +30,16 @@ export default function Home() {
       >
         保存する
       </Button>
-      <Searchbar />
+      <div
+        style={{
+          position: "relative",
+          width: "300px",
+          bottom: "225px",
+          left: "75%",
+        }}
+      >
+        <Searchbar />
+      </div>
       <Button
         bg="#4338CA"
         css={{

@@ -14,8 +14,6 @@ const Searchbar = () => {
           style={{
             display: "flex",
             gap: "0.5rem",
-            top: "225px",
-            left: "75%",
           }}
         >
           <Search />
@@ -29,9 +27,6 @@ const Searchbar = () => {
         color="white"
         css={{
           borderRadius: "30px",
-          width: "300px",
-          bottom: "225px",
-          left: "75%",
         }}
       />
     </InputGroup>
