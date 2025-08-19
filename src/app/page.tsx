@@ -1,19 +1,49 @@
-import {
-  Avatar,
-  Button,
-  Card,
-  Input,
-  InputGroup,
-  Textarea,
-} from "@chakra-ui/react";
-import { CloseButton, Drawer, Portal } from "@chakra-ui/react";
-import { Search, SlidersHorizontal } from "lucide-react";
-import { Plus } from "lucide-react";
-import { AlignJustify } from "lucide-react";
+"use client";
+import { Button, Card, Box, Spinner, Text } from "@chakra-ui/react";
+import { Plus, AlignJustify } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+
+  // ローディング中はスピナーを表示
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        height="100vh"
+      >
+        <Spinner size="xl" color="#4338CA" />
+        <Text mt={4} color="gray.600">
+          認証中...
+        </Text>
+      </Box>
+    );
+  }
+
+  // ユーザーがログインしていない場合はリダイレクト中
+  if (!user) {
+    return (
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        height="100vh"
+      >
+        <Spinner size="xl" color="#4338CA" />
+        <Text mt={4} color="gray.600">
+          ログインページにリダイレクト中...
+        </Text>
+      </Box>
+    );
+  }
   return (
     <div>
       <AlignJustify
@@ -21,6 +51,20 @@ export default function Home() {
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
       <Sidebar />
+
+      {/* ログアウトボタン */}
+      <Button
+        size="sm"
+        variant="outline"
+        position="absolute"
+        top="12px"
+        right="20px"
+        onClick={async () => {
+          await supabase.auth.signOut();
+        }}
+      >
+        ログアウト
+      </Button>
       <Button
         size="sm"
         variant="subtle"
@@ -35,7 +79,7 @@ export default function Home() {
           position: "relative",
           width: "300px",
           bottom: "225px",
-          left: "75%",
+          left: "70%",
         }}
       >
         <Searchbar />
