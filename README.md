@@ -53,7 +53,7 @@ Choco は、メモ同士の関係を視覚的に把握でき、気軽にメモ�
 1. リポジトリをクローン
 
 ```bash
-git clone <repository-url>
+git clone `https://github.com/chiikawasaki/choco.git`
 cd choco
 ```
 
