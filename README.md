@@ -60,7 +60,7 @@ cd choco
 2. 依存関係をインストール
 
 ```bash
-npm install
+npm i
 ```
 
 3. 環境変数を設定
@@ -76,7 +76,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
 
 ```bash
 npx prisma generate
-npx prisma db push
 ```
 
 5. 開発サーバーを起動
