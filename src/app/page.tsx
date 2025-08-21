@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
+import NoteForm from "@/components/notes/NoteForm";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -97,6 +98,11 @@ export default function Home() {
       >
         <Plus color="white" />
       </Button>
+      {/* メモ投稿フォーム */}
+      <Box mt={8} mb={8}>
+        <NoteForm />
+      </Box>
+
       <Card.Root width="320px" bg="pink">
         <Card.Body gap="2">
           <Card.Title mt="2">メモタイトル</Card.Title>
