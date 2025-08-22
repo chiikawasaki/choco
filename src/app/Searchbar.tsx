@@ -1,11 +1,5 @@
-import {
-  Drawer,
-  Portal,
-  CloseButton,
-  Input,
-  InputGroup,
-} from "@chakra-ui/react";
-import { AlignJustify, Search, SlidersHorizontal } from "lucide-react";
+import { Input, InputGroup } from "@chakra-ui/react";
+import { Search, SlidersHorizontal } from "lucide-react";
 const Searchbar = () => {
   return (
     <InputGroup
@@ -24,7 +18,7 @@ const Searchbar = () => {
       <Input
         placeholder="キーワードを入力"
         size="sm"
-        color="white"
+        color="black"
         css={{
           borderRadius: "30px",
         }}

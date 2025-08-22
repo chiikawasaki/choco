@@ -1,6 +1,6 @@
 "use client";
 
-import { supabase } from "@/lib/supabase";
+import { getSupabaseClient } from "@/lib/supabase-client";
 import { Box, Button, Field, Heading, Input } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { useForm } from "react-hook-form";
@@ -17,6 +17,7 @@ interface FormValues {
 const Login = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const supabase = getSupabaseClient();
 
   const {
     register,
@@ -36,6 +37,7 @@ const Login = () => {
         type: "error",
       });
       setIsLoading(false);
+      return;
     } else {
       setIsLoading(false);
       console.log("User logged in:", loginData.user);
@@ -104,7 +106,7 @@ const Login = () => {
             })}
           />
           {errors.password && (
-            <Field.ErrorText color="red.500" fontSize="sm" mt="1">
+            <Field.ErrorText color="red" fontSize="sm" mt="1">
               {errors.password.message}
             </Field.ErrorText>
           )}
