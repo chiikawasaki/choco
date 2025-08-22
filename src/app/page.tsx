@@ -3,12 +3,26 @@ import { Button, Card, Box, Spinner, Text } from "@chakra-ui/react";
 import { Plus, AlignJustify } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
-import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import NoteForm from "@/components/notes/NoteForm";
+import { useState, useRef } from "react";
+import { getSupabaseClient } from "@/lib/supabase-client";
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const sidebarRef = useRef<{ refreshNotes: () => void }>(null);
+
+  const supabase = getSupabaseClient();
+
+  // メモ作成後に一覧を更新
+  const handleNoteCreated = () => {
+    setRefreshKey((prev) => prev + 1);
+    // サイドバーも更新
+    if (sidebarRef.current) {
+      sidebarRef.current.refreshNotes();
+    }
+  };
 
   // ローディング中はスピナーを表示
   if (loading) {
@@ -45,13 +59,14 @@ export default function Home() {
       </Box>
     );
   }
+
   return (
     <div>
       <AlignJustify
         size={25}
         style={{ position: "absolute", top: "6px", left: "10px" }}
       />
-      <Sidebar />
+      <Sidebar ref={sidebarRef} />
 
       {/* ログアウトボタン */}
       <Button
@@ -100,7 +115,7 @@ export default function Home() {
       </Button>
       {/* メモ投稿フォーム */}
       <Box mt={8} mb={8}>
-        <NoteForm />
+        <NoteForm onNoteCreated={handleNoteCreated} />
       </Box>
 
       <Card.Root width="320px" bg="pink">

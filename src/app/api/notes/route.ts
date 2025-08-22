@@ -1,36 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase-server";
+import { prisma } from "@/lib/prisma";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 // メモを作成
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Supabaseクライアントを作成（認証用）
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set(name, value, options);
+          },
+          remove(name: string, options: any) {
+            cookieStore.set(name, "", { ...options, maxAge: 0 });
+          },
+        },
+      }
+    );
 
-    // 認証チェック
+    // 現在のユーザーを取得
     const {
       data: { user },
-      error: authError,
+      error: userError,
     } = await supabase.auth.getUser();
 
-    console.log("認証チェック結果:", { user: !!user, authError });
-
-    if (authError) {
-      console.error("認証エラー詳細:", authError);
-      return NextResponse.json(
-        { error: `認証エラー: ${authError.message}` },
-        { status: 401 }
-      );
-    }
-
-    if (!user) {
-      console.log("ユーザーが見つかりません");
+    if (userError || !user) {
+      console.error("Authentication error:", userError);
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
+
+    console.log("Authenticated user:", user.id);
 
     // リクエストボディを取得
     const { title, content } = await request.json();
 
-    // バリデーション
     if (!title || !content) {
       return NextResponse.json(
         { error: "タイトルと内容は必須です" },
@@ -38,89 +49,94 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (title.length > 100) {
-      return NextResponse.json(
-        { error: "タイトルは100文字以下で入力してください" },
-        { status: 400 }
-      );
-    }
-
-    if (content.length > 1000) {
-      return NextResponse.json(
-        { error: "内容は1000文字以下で入力してください" },
-        { status: 400 }
-      );
-    }
-
-    // メモを作成
-    const { data: note, error: insertError } = await supabase
-      .from("notes")
-      .insert({
+    // Prisma経由でメモを作成
+    const note = await prisma.note.create({
+      data: {
         title,
         content,
         userId: user.id,
-      })
-      .select()
-      .single();
+      },
+    });
 
-    if (insertError) {
-      console.error("メモ作成エラー:", insertError);
-      return NextResponse.json(
-        { error: "メモの作成に失敗しました" },
-        { status: 500 }
-      );
-    }
+    console.log("Note created successfully:", note.id);
 
     return NextResponse.json({
       success: true,
-      note,
+      note: {
+        ...note,
+        createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt.toISOString(),
+      },
     });
   } catch (error) {
-    console.error("API エラー:", error);
+    console.error("Note creation error:", error);
     return NextResponse.json(
-      { error: "サーバーエラーが発生しました" },
+      { error: "メモの作成に失敗しました" },
       { status: 500 }
     );
   }
 }
 
 // ユーザーのメモ一覧を取得
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    // Supabaseクライアントを作成（認証用）
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value;
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set(name, value, options);
+          },
+          remove(name: string, options: any) {
+            cookieStore.set(name, "", { ...options, maxAge: 0 });
+          },
+        },
+      }
+    );
 
-    // 認証チェック
+    // 現在のユーザーを取得
     const {
       data: { user },
-      error: authError,
+      error: userError,
     } = await supabase.auth.getUser();
-    if (authError || !user) {
+
+    if (userError || !user) {
+      console.error("Authentication error:", userError);
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    // メモ一覧を取得
-    const { data: notes, error: selectError } = await supabase
-      .from("notes")
-      .select("*")
-      .eq("userId", user.id)
-      .order("createdAt", { ascending: false });
+    console.log("Fetching notes for user:", user.id);
 
-    if (selectError) {
-      console.error("メモ取得エラー:", selectError);
-      return NextResponse.json(
-        { error: "メモの取得に失敗しました" },
-        { status: 500 }
-      );
-    }
+    // Prisma経由でメモを取得
+    const notes = await prisma.note.findMany({
+      where: {
+        userId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    console.log("Notes fetched successfully:", notes.length);
 
     return NextResponse.json({
       success: true,
-      notes,
+      notes: notes.map((note: any) => ({
+        ...note,
+        createdAt: note.createdAt.toISOString(),
+        updatedAt: note.updatedAt.toISOString(),
+      })),
     });
   } catch (error) {
-    console.error("API エラー:", error);
+    console.error("Notes fetch error:", error);
     return NextResponse.json(
-      { error: "サーバーエラーが発生しました" },
+      { error: "メモの取得に失敗しました" },
       { status: 500 }
     );
   }

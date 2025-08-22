@@ -2,9 +2,18 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Box, Button, Field, Heading, Input, Textarea } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Field,
+  Heading,
+  Input,
+  Textarea,
+  HStack,
+} from "@chakra-ui/react";
 import { createNote, CreateNoteData } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
+import { Plus } from "lucide-react";
 
 interface NoteFormProps {
   onNoteCreated?: () => void;
@@ -12,6 +21,7 @@ interface NoteFormProps {
 
 export default function NoteForm({ onNoteCreated }: NoteFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   const {
     register,
@@ -34,6 +44,9 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
       // フォームをリセット
       reset();
 
+      // フォームを非表示にする
+      setIsVisible(false);
+
       // 親コンポーネントに通知
       onNoteCreated?.();
     } catch (error) {
@@ -48,11 +61,30 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
     }
   };
 
+  if (!isVisible) {
+    return (
+      <Box textAlign="center" p={6}>
+        <Button
+          bg="#4338CA"
+          color="white"
+          size="lg"
+          onClick={() => setIsVisible(true)}
+        >
+          <Plus size={20} style={{ marginRight: "8px" }} />
+          新しいメモを作成
+        </Button>
+      </Box>
+    );
+  }
+
   return (
     <Box p={6} bg="white" borderRadius="lg" shadow="md" maxW="600px" mx="auto">
-      <Heading size="md" mb={6}>
-        新しいメモを投稿
-      </Heading>
+      <HStack justify="space-between" mb={6}>
+        <Heading size="md">新しいメモを投稿</Heading>
+        <Button size="sm" variant="outline" onClick={() => setIsVisible(false)}>
+          キャンセル
+        </Button>
+      </HStack>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Field.Root invalid={!!errors.title} mb={4}>
@@ -98,17 +130,28 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
           )}
         </Field.Root>
 
-        <Button
-          type="submit"
-          bg="#4338CA"
-          color="white"
-          size="lg"
-          width="100%"
-          loading={isLoading}
-          disabled={isLoading}
-        >
-          {isLoading ? "投稿中..." : "メモを投稿"}
-        </Button>
+        <HStack gap={3}>
+          <Button
+            type="submit"
+            bg="#4338CA"
+            color="white"
+            size="lg"
+            flex={1}
+            loading={isLoading}
+            disabled={isLoading}
+          >
+            {isLoading ? "投稿中..." : "メモを投稿"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => setIsVisible(false)}
+            disabled={isLoading}
+          >
+            キャンセル
+          </Button>
+        </HStack>
       </form>
     </Box>
   );
