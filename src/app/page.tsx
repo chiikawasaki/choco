@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import NoteForm from "@/components/notes/NoteForm";
 import { useState, useRef, useEffect } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
-import { getUserNotes } from "@/lib/notes";
+import { getUserNotes, updateNotePosition } from "@/lib/notes";
 
 type Note = {
   id: string;
@@ -152,17 +152,24 @@ export default function Home() {
     if (draggedNote) {
       console.log("ドラッグ終了:", draggedNote);
 
-      // 位置情報を永続化（ここでAPIに保存することも可能）
+      // 位置情報を永続化
       const finalNote = notes.find((note) => note.id === draggedNote);
       if (finalNote) {
         console.log("最終位置:", {
           id: finalNote.id,
           positionX: finalNote.positionX,
           positionY: finalNote.positionY,
+          zIndex: finalNote.zIndex,
         });
 
-        // TODO: ここでAPIに位置情報を保存
-        // updateNotePosition(finalNote.id, finalNote.positionX, finalNote.positionY);
+        // データベースに位置情報を保存
+        updateNotePosition(finalNote.id, {
+          positionX: finalNote.positionX,
+          positionY: finalNote.positionY,
+          zIndex: finalNote.zIndex,
+        }).catch((error) => {
+          console.error("位置情報の保存に失敗:", error);
+        });
       }
 
       setDraggedNote(null);
