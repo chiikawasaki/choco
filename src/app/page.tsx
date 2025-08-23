@@ -82,16 +82,6 @@ export default function Home() {
     const offsetX = e.clientX - currentNote.positionX;
     const offsetY = e.clientY - currentNote.positionY;
 
-    console.log("ドラッグ開始:", {
-      noteId,
-      mouseX: e.clientX,
-      mouseY: e.clientY,
-      currentPositionX: currentNote.positionX,
-      currentPositionY: currentNote.positionY,
-      offsetX,
-      offsetY,
-    });
-
     setDragOffset({ x: offsetX, y: offsetY });
     setDraggedNote(noteId);
 
@@ -112,16 +102,6 @@ export default function Home() {
     const newX = e.clientX - dragOffset.x;
     const newY = e.clientY - dragOffset.y;
 
-    console.log("ドラッグ中:", {
-      draggedNote,
-      mouseX: e.clientX,
-      mouseY: e.clientY,
-      offsetX: dragOffset.x,
-      offsetY: dragOffset.y,
-      newX,
-      newY,
-    });
-
     setNotes((prev) =>
       prev.map((note) =>
         note.id === draggedNote
@@ -138,18 +118,9 @@ export default function Home() {
   // ドラッグ終了
   const handleMouseUp = () => {
     if (draggedNote) {
-      console.log("ドラッグ終了:", draggedNote);
-
       // 位置情報を永続化
       const finalNote = notes.find((note) => note.id === draggedNote);
       if (finalNote) {
-        console.log("最終位置:", {
-          id: finalNote.id,
-          positionX: finalNote.positionX,
-          positionY: finalNote.positionY,
-          zIndex: finalNote.zIndex,
-        });
-
         // データベースに位置情報を保存
         updateNotePosition(finalNote.id, {
           positionX: finalNote.positionX,
