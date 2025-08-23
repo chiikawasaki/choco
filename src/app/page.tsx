@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import NoteForm from "@/components/notes/NoteForm";
 import { useState, useRef } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
+import Link from "next/link";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -100,19 +101,21 @@ export default function Home() {
       >
         <Searchbar />
       </div>
-      <Button
-        bg="#4338CA"
-        css={{
-          position: "fixed",
-          bottom: "5%",
-          right: "2%",
-          width: "70px",
-          height: "70px",
-          borderRadius: "50%",
-        }}
-      >
-        <Plus color="white" />
-      </Button>
+      <Link href="/post">
+        <Button
+          bg="#4338CA"
+          css={{
+            position: "fixed",
+            bottom: "5%",
+            right: "2%",
+            width: "70px",
+            height: "70px",
+            borderRadius: "50%",
+          }}
+        >
+          <Plus color="white" />
+        </Button>
+      </Link>
       {/* メモ投稿フォーム */}
       <Box mt={8} mb={8}>
         <NoteForm onNoteCreated={handleNoteCreated} />
