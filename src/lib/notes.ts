@@ -12,6 +12,12 @@ export interface CreateNoteData {
   content: string;
 }
 
+export interface UpdateNotePositionData {
+  positionX: number;
+  positionY: number;
+  zIndex: number;
+}
+
 // メモを作成
 export async function createNote(data: CreateNoteData): Promise<Note> {
   try {
@@ -82,6 +88,30 @@ export async function updateNote(
     return result.note;
   } catch (error) {
     console.error("updateNote error:", error);
+    throw error;
+  }
+}
+
+// メモの位置情報を更新
+export async function updateNotePosition(
+  id: string,
+  data: UpdateNotePositionData
+): Promise<void> {
+  try {
+    const response = await fetch(`/api/notes/${id}/position`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "位置情報の更新に失敗しました");
+    }
+  } catch (error) {
+    console.error("updateNotePosition error:", error);
     throw error;
   }
 }
