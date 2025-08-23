@@ -46,7 +46,6 @@ const PostPage = () => {
 
   return (
     <Box p={8}>
-      {/* ヘッダー */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -55,7 +54,6 @@ const PostPage = () => {
       >
         <Heading size="lg">投稿ページ</Heading>
 
-        {/* ログアウトボタン */}
         <Button
           variant="outline"
           onClick={async () => {

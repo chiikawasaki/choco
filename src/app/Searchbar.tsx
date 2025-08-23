@@ -1,18 +1,13 @@
-import { Input, InputGroup } from "@chakra-ui/react";
+import { Box, Input, InputGroup } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
 const Searchbar = () => {
   return (
     <InputGroup
       endElement={
-        <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-          }}
-        >
+        <Box display="flex" gap="0.5rem">
           <Search />
           <SlidersHorizontal />
-        </div>
+        </Box>
       }
     >
       <Input
