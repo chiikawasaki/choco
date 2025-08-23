@@ -50,10 +50,15 @@ export async function PUT(
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    const body = await request.json();
-    console.log("リクエストボディ:", body);
+    const { positionX, positionY, zIndex } = await request.json();
 
-    const { positionX, positionY, zIndex } = body;
+    console.log("位置情報更新リクエスト:", {
+      noteId,
+      positionX,
+      positionY,
+      zIndex,
+      userId: user.id,
+    });
 
     if (
       typeof positionX !== "number" ||
