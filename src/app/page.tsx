@@ -22,18 +22,6 @@ type Note = {
   zIndex: number;
 };
 
-type ApiNote = {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
-  positionX?: number;
-  positionY?: number;
-  zIndex?: number;
-};
-
 export default function Home() {
   const { user, loading } = useAuth();
   const [refreshKey, setRefreshKey] = useState(0);
@@ -49,7 +37,7 @@ export default function Home() {
   const fetchNotes = async () => {
     try {
       setNotesLoading(true);
-      const fetchedNotes = (await getUserNotes()) as ApiNote[];
+      const fetchedNotes = (await getUserNotes()) as Note[];
       // 位置情報がない場合のみデフォルト値を設定
       const notesWithPosition = fetchedNotes.map((note, index) => {
         // 既存の位置情報がある場合は保持、ない場合のみデフォルト値を設定
@@ -230,7 +218,7 @@ export default function Home() {
   }
 
   return (
-    <div
+    <Box
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
@@ -336,6 +324,6 @@ export default function Home() {
           ))}
         </Box>
       )}
-    </div>
+    </Box>
   );
 }
