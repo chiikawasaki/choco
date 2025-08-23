@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value;
           },
-          set(name: string, value: string, options: any) {
+          set(name: string, value: string, options: Record<string, unknown>) {
             cookieStore.set(name, value, options);
           },
-          remove(name: string, options: any) {
+          remove(name: string, options: Record<string, unknown>) {
             cookieStore.set(name, "", { ...options, maxAge: 0 });
           },
         },
@@ -90,10 +90,10 @@ export async function GET(request: NextRequest) {
           get(name: string) {
             return cookieStore.get(name)?.value;
           },
-          set(name: string, value: string, options: any) {
+          set(name: string, value: string, options: Record<string, unknown>) {
             cookieStore.set(name, value, options);
           },
-          remove(name: string, options: any) {
+          remove(name: string, options: Record<string, unknown>) {
             cookieStore.set(name, "", { ...options, maxAge: 0 });
           },
         },
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note: any) => ({
+      notes: notes.map((note) => ({
         ...note,
         createdAt: note.createdAt.toISOString(),
         updatedAt: note.updatedAt.toISOString(),
