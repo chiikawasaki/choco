@@ -45,15 +45,7 @@ export default function Home() {
           </Drawer.Positioner>
         </Portal>
       </Drawer.Root>
-      <Button
-        size="sm"
-        variant="subtle"
-        bg="#4338CA"
-        color="white"
-        css={{ borderRadius: "30px", margin: "100px", padding: "15px 25px" }}
-      >
-        保存する
-      </Button>
+
       <InputGroup
         endElement={
           <div style={{ display: "flex", gap: "0.5rem" }}>
