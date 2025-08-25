@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Box, Spinner, Text } from "@chakra-ui/react";
+import { Button, Box, Spinner, Text } from "@chakra-ui/react";
 import { Plus, AlignJustify } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
@@ -8,7 +8,13 @@ import { useAuth } from "@/hooks/useAuth";
 import NoteForm from "@/components/notes/NoteForm";
 import { useState, useRef, useEffect } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
-import { getUserNotes, updateNotePosition } from "@/lib/notes";
+import {
+  getUserNotes,
+  updateNotePosition,
+  createNoteRelationship,
+  deleteNoteRelationship,
+} from "@/lib/notes";
+import NoteFlow from "@/components/notes/NoteFlow";
 
 type Note = {
   id: string;
@@ -68,31 +74,6 @@ export default function Home() {
     }
     // メモ一覧も更新
     fetchNotes();
-  };
-
-  // ドラッグ開始
-  const handleMouseDown = (e: React.MouseEvent, noteId: string) => {
-    e.preventDefault();
-
-    // カードの現在位置を取得
-    const currentNote = notes.find((note) => note.id === noteId);
-    if (!currentNote) return;
-
-    // マウス位置とカードの現在位置の差を計算
-    const offsetX = e.clientX - currentNote.positionX;
-    const offsetY = e.clientY - currentNote.positionY;
-
-    setDragOffset({ x: offsetX, y: offsetY });
-    setDraggedNote(noteId);
-
-    // ドラッグ中のメモを最前面に（位置は変更しない）
-    setNotes((prev) =>
-      prev.map((note) =>
-        note.id === noteId
-          ? { ...note, zIndex: Math.max(...prev.map((n) => n.zIndex || 0)) + 1 }
-          : note
-      )
-    );
   };
 
   // ドラッグ中
@@ -249,6 +230,7 @@ export default function Home() {
         <NoteForm onNoteCreated={handleNoteCreated} />
       </Box>
 
+      {/* メモ一覧をカードで表示 */}
       {notesLoading ? (
         <Box display="flex" justifyContent="center" p={8}>
           <Spinner size="lg" color="#4338CA" />
@@ -263,37 +245,67 @@ export default function Home() {
           </Text>
         </Box>
       ) : (
-        <Box position="relative" width="100%" height="calc(100vh - 200px)">
-          {notes.map((note) => (
-            <Box
-              key={note.id}
-              position="absolute"
-              left={`${note.positionX}px`}
-              top={`${note.positionY}px`}
-              zIndex={note.zIndex}
-              cursor={draggedNote === note.id ? "grabbing" : "grab"}
-              onMouseDown={(e) => handleMouseDown(e, note.id)}
-              style={{
-                userSelect: "none",
-                touchAction: "none",
-              }}
+        <>
+          {/* メモの関係性を視覚化 */}
+          <Box mb={6}>
+            <Text
+              fontSize="xl"
+              fontWeight="bold"
+              color="white"
+              mb={4}
+              textAlign="center"
             >
-              <Card.Root width="320px" bg="pink">
-                <Card.Body gap="2">
-                  <Card.Title mt="2">{note.title}</Card.Title>
-                  <Card.Description color="black">
-                    {note.content}
-                  </Card.Description>
-                </Card.Body>
-                <Card.Footer justifyContent="flex-end">
-                  <Text fontSize="xs" color="gray.500">
-                    {new Date(note.createdAt).toLocaleDateString("ja-JP")}
-                  </Text>
-                </Card.Footer>
-              </Card.Root>
+              メモの関係性
+            </Text>
+            <Box
+              bg="white"
+              borderRadius="lg"
+              p={4}
+              height="600px"
+              overflow="hidden"
+            >
+              <NoteFlow
+                notes={notes}
+                onNoteUpdate={(noteId, data) => {
+                  // 位置情報をDBに保存
+                  const positionData: {
+                    positionX?: number;
+                    positionY?: number;
+                    zIndex?: number;
+                  } = {};
+                  if ("positionX" in data && data.positionX !== undefined)
+                    positionData.positionX = data.positionX as number;
+                  if ("positionY" in data && data.positionY !== undefined)
+                    positionData.positionY = data.positionY as number;
+                  if ("zIndex" in data && data.zIndex !== undefined)
+                    positionData.zIndex = data.zIndex as number;
+
+                  if (Object.keys(positionData).length > 0) {
+                    updateNotePosition(noteId, {
+                      positionX: positionData.positionX || 0,
+                      positionY: positionData.positionY || 0,
+                      zIndex: positionData.zIndex || 0,
+                    })
+                      .then(() => {
+                        console.log("位置情報の保存が完了しました");
+                      })
+                      .catch((error) => {
+                        console.error("位置情報の保存に失敗:", error);
+                      });
+                  }
+                }}
+                onConnectionCreate={(sourceId, targetId) => {
+                  // 関係性をDBに保存
+                  createNoteRelationship(sourceId, targetId);
+                }}
+                onConnectionDelete={(edgeId) => {
+                  // 関係性をDBから削除
+                  deleteNoteRelationship(edgeId);
+                }}
+              />
             </Box>
-          ))}
-        </Box>
+          </Box>
+        </>
       )}
     </Box>
   );
