@@ -45,15 +45,23 @@ const PostPage = () => {
   }
 
   return (
-    <Box p={8}>
+    <Box p={8} position="relative" height="100vh" bg="#f0f0f0">
       <Box
+        position="fixed"
+        top="32px"
+        right="16px"
         display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        mb={8}
+        gap="8px"
+        zIndex="1000"
       >
-        <Heading size="lg">投稿ページ</Heading>
-
+        <Button
+          bg="#4338CA"
+          color="white"
+          borderRadius="30px"
+          padding="15px 25px"
+        >
+          保存
+        </Button>
         <Button
           variant="outline"
           onClick={async () => {
@@ -62,6 +70,14 @@ const PostPage = () => {
         >
           ログアウト
         </Button>
+      </Box>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={8}
+      >
+        <Heading size="lg">投稿ページ</Heading>
       </Box>
       <NoteForm />
     </Box>

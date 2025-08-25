@@ -194,15 +194,6 @@ export default function Home() {
       >
         ログアウト
       </Button>
-      <Button
-        size="sm"
-        variant="subtle"
-        bg="#4338CA"
-        color="white"
-        css={{ borderRadius: "30px", margin: "100px", padding: "15px 25px" }}
-      >
-        保存する
-      </Button>
       <div
         style={{
           position: "relative",
