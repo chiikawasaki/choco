@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     String
+  positionX  Float    @default(0)
+  positionY  Float    @default(0)
+  zIndex     Int      @default(0)
+  
+  // リレーションシップ
+  sourceConnections NoteRelationship[] @relation("SourceNote")
+  targetConnections NoteRelationship[] @relation("TargetNote")
+  
+  @@map("notes")
+}
+
+model NoteRelationship {
+  id             String   @id @default(cuid())
+  sourceNoteId   String
+  targetNoteId   String
+  relationshipType String @default("connection")
+  label          String?
+  createdAt      DateTime @default(now())
+  
+  // リレーション
+  sourceNote     Note     @relation("SourceNote", fields: [sourceNoteId], references: [id], onDelete: Cascade)
+  targetNote     Note     @relation("TargetNote", fields: [targetNoteId], references: [id], onDelete: Cascade)
+  
+  @@unique([sourceNoteId, targetNoteId])
+  @@map("note_relationships")
+}
