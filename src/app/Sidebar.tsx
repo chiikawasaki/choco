@@ -91,10 +91,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
   return (
     <Drawer.Root placement={"start"}>
       <Drawer.Trigger asChild>
-        <AlignJustify
-          size={25}
-          style={{ position: "absolute", top: "6px", left: "10px" }}
-        />
+        <AlignJustify size={25} style={{ cursor: "pointer" }} />
       </Drawer.Trigger>
       <Portal>
         <Drawer.Backdrop />

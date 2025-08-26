@@ -18,6 +18,7 @@ import { Note, getNoteRelationships } from "@/lib/notes";
 import NoteNode from "./NoteNode";
 import CustomEdge from "./CustomEdge";
 import { createNoteRelationship } from "@/lib/notes";
+import { Box } from "@chakra-ui/react";
 
 // カスタムノードタイプ
 const nodeTypes = {
@@ -70,8 +71,6 @@ export default function NoteFlow({
 
   // 初期化時にノードを設定
   useEffect(() => {
-    console.log("NoteFlow: ノードを設定", noteNodes);
-    console.log("NoteFlow: notes配列", notes);
     setNodes(noteNodes);
   }, [noteNodes, setNodes, notes]);
 
@@ -179,7 +178,7 @@ export default function NoteFlow({
   });
 
   return (
-    <div style={{ width: "100%", height: "600px" }}>
+    <div style={{ width: "100%", height: "100%" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -195,7 +194,9 @@ export default function NoteFlow({
       >
         <Controls />
         <Background />
-        <MiniMap />
+        <Box css={{ position: "absolute", bottom: "20px", right: "100px" }}>
+          <MiniMap />
+        </Box>
       </ReactFlow>
     </div>
   );

@@ -1,11 +1,10 @@
 "use client";
 
 import { Button, Box, Spinner, Text } from "@chakra-ui/react";
-import { Plus, AlignJustify } from "lucide-react";
+import { Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
 import { useAuth } from "@/hooks/useAuth";
-import NoteForm from "@/components/notes/NoteForm";
 import { useState, useRef, useEffect } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
 import Link from "next/link";
@@ -175,62 +174,74 @@ export default function Home() {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
-      style={{ height: "100vh", overflow: "hidden" }}
+      style={{ height: "100vh", overflow: "hidden", position: "relative" }}
     >
-      <AlignJustify
-        size={25}
-        style={{ position: "absolute", top: "6px", left: "10px" }}
-      />
-      <Sidebar ref={sidebarRef} />
-
-      <Button
-        size="sm"
-        variant="outline"
-        position="absolute"
-        top="12px"
-        right="20px"
-        onClick={async () => {
-          await supabase.auth.signOut();
-        }}
-      >
-        ログアウト
-      </Button>
-      <div
-        style={{
-          position: "relative",
-          width: "300px",
-          bottom: "225px",
-          left: "70%",
-        }}
-      >
-        <Searchbar />
-      </div>
-      <Link href="/post">
-        <Button
-          bg="#4338CA"
-          css={{
-            position: "fixed",
-            bottom: "5%",
-            right: "2%",
-            width: "70px",
-            height: "70px",
-            borderRadius: "50%",
-          }}
-        >
-          <Plus color="white" />
-        </Button>
-      </Link>
-      <Box mt={8} mb={8}>
-        <NoteForm onNoteCreated={handleNoteCreated} />
+      <Box position="fixed" top="0" left="0" right="0" zIndex="1000" p={2}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Sidebar ref={sidebarRef} />
+          </Box>
+          <Box display="flex" gap={4}>
+            <Searchbar />
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={async () => {
+                await supabase.auth.signOut();
+              }}
+            >
+              ログアウト
+            </Button>
+            <Link href="/post">
+              <Button
+                size="sm"
+                bg="#4338CA"
+                color="white"
+                borderRadius="30px"
+                padding="15px 25px"
+              >
+                新規作成
+              </Button>
+            </Link>
+          </Box>
+        </Box>
+      </Box>
+      <Box position="fixed" bottom="20px" right="20px" zIndex="999">
+        <Link href="/post">
+          <Button
+            bg="#4338CA"
+            css={{
+              position: "fixed",
+              bottom: "5%",
+              right: "2%",
+              width: "70px",
+              height: "70px",
+              borderRadius: "50%",
+            }}
+          >
+            <Plus color="white" />
+          </Button>
+        </Link>
       </Box>
 
-      {/* メモ一覧をカードで表示 */}
       {notesLoading ? (
-        <Box display="flex" justifyContent="center" p={8}>
-          <Spinner size="lg" color="#4338CA" />
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
+          <Spinner size="xl" color="#4338CA" />
         </Box>
       ) : notes.length === 0 ? (
-        <Box textAlign="center" p={8}>
+        <Box
+          textAlign="center"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh"
+        >
           <Text color="gray.500" fontSize="lg">
             まだメモがありません
           </Text>
@@ -239,67 +250,55 @@ export default function Home() {
           </Text>
         </Box>
       ) : (
-        <>
-          {/* メモの関係性を視覚化 */}
-          <Box mb={6}>
-            <Text
-              fontSize="xl"
-              fontWeight="bold"
-              color="white"
-              mb={4}
-              textAlign="center"
-            >
-              メモの関係性
-            </Text>
-            <Box
-              bg="white"
-              borderRadius="lg"
-              p={4}
-              height="600px"
-              overflow="hidden"
-            >
-              <NoteFlow
-                notes={notes}
-                onNoteUpdate={(noteId, data) => {
-                  // 位置情報をDBに保存
-                  const positionData: {
-                    positionX?: number;
-                    positionY?: number;
-                    zIndex?: number;
-                  } = {};
-                  if ("positionX" in data && data.positionX !== undefined)
-                    positionData.positionX = data.positionX as number;
-                  if ("positionY" in data && data.positionY !== undefined)
-                    positionData.positionY = data.positionY as number;
-                  if ("zIndex" in data && data.zIndex !== undefined)
-                    positionData.zIndex = data.zIndex as number;
+        <Box
+          css={{
+            position: "absolute",
+            top: "0",
+            left: "0",
+            right: "0",
+            bottom: "0",
+          }}
+        >
+          <NoteFlow
+            notes={notes}
+            onNoteUpdate={(noteId, data) => {
+              // 位置情報をDBに保存
+              const positionData: {
+                positionX?: number;
+                positionY?: number;
+                zIndex?: number;
+              } = {};
+              if ("positionX" in data && data.positionX !== undefined)
+                positionData.positionX = data.positionX as number;
+              if ("positionY" in data && data.positionY !== undefined)
+                positionData.positionY = data.positionY as number;
+              if ("zIndex" in data && data.zIndex !== undefined)
+                positionData.zIndex = data.zIndex as number;
 
-                  if (Object.keys(positionData).length > 0) {
-                    updateNotePosition(noteId, {
-                      positionX: positionData.positionX || 0,
-                      positionY: positionData.positionY || 0,
-                      zIndex: positionData.zIndex || 0,
-                    })
-                      .then(() => {
-                        console.log("位置情報の保存が完了しました");
-                      })
-                      .catch((error) => {
-                        console.error("位置情報の保存に失敗:", error);
-                      });
-                  }
-                }}
-                onConnectionCreate={(sourceId, targetId) => {
-                  // 関係性をDBに保存
-                  createNoteRelationship(sourceId, targetId);
-                }}
-                onConnectionDelete={(edgeId) => {
-                  // 関係性をDBから削除
-                  deleteNoteRelationship(edgeId);
-                }}
-              />
-            </Box>
-          </Box>
-        </>
+              if (Object.keys(positionData).length > 0) {
+                updateNotePosition(noteId, {
+                  positionX: positionData.positionX || 0,
+                  positionY: positionData.positionY || 0,
+                  zIndex: positionData.zIndex || 0,
+                })
+                  .then(() => {
+                    console.log("位置情報の保存が完了しました");
+                  })
+                  .catch((error) => {
+                    console.error("位置情報の保存に失敗:", error);
+                  });
+              }
+            }}
+            onConnectionCreate={(sourceId, targetId) => {
+              // 関係性をDBに保存
+              createNoteRelationship(sourceId, targetId);
+            }}
+            onConnectionDelete={(edgeId) => {
+              // 関係性をDBから削除
+              deleteNoteRelationship(edgeId);
+            }}
+          />
+        </Box>
       )}
     </Box>
   );
