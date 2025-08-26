@@ -10,7 +10,6 @@ import {
   VStack,
   HStack,
 } from "@chakra-ui/react";
-import { Trash2, Edit } from "lucide-react";
 import { Note, getUserNotes, deleteNote } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
 

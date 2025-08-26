@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// メモを作成
+// 関係性を作成
 export async function POST(request: NextRequest) {
   try {
     // Supabaseクライアントを作成（認証用）
@@ -37,47 +37,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    console.log("Authenticated user:", user.id);
+    const { sourceNoteId, targetNoteId, relationshipType, label } =
+      await request.json();
 
-    // リクエストボディを取得
-    const { title, content } = await request.json();
-
-    if (!title || !content) {
+    if (!sourceNoteId || !targetNoteId) {
       return NextResponse.json(
-        { error: "タイトルと内容は必須です" },
+        { error: "ソースとターゲットのメモIDは必須です" },
         { status: 400 }
       );
     }
 
-    // Prisma経由でメモを作成
-    const note = await prisma.note.create({
+    // 両方のメモが存在し、自分のメモかチェック
+    const [sourceNote, targetNote] = await Promise.all([
+      prisma.note.findFirst({
+        where: { id: sourceNoteId, userId: user.id },
+      }),
+      prisma.note.findFirst({
+        where: { id: targetNoteId, userId: user.id },
+      }),
+    ]);
+
+    if (!sourceNote || !targetNote) {
+      return NextResponse.json(
+        { error: "メモが見つからないか、権限がありません" },
+        { status: 404 }
+      );
+    }
+
+    // 関係性を作成
+    const relationship = await prisma.noteRelationship.create({
       data: {
-        title,
-        content,
-        userId: user.id,
+        sourceNoteId,
+        targetNoteId,
+        relationshipType: relationshipType || "connection",
+        label,
       },
     });
 
-    console.log("Note created successfully:", note.id);
+    console.log("Note relationship created successfully:", relationship.id);
 
     return NextResponse.json({
       success: true,
-      note: {
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      },
+      relationship,
     });
   } catch (error) {
-    console.error("Note creation error:", error);
+    console.error("Note relationship creation error:", error);
     return NextResponse.json(
-      { error: "メモの作成に失敗しました" },
+      { error: "関係性の作成に失敗しました" },
       { status: 500 }
     );
   }
 }
 
-// ユーザーのメモ一覧を取得
+// 関係性一覧を取得
 export async function GET(request: NextRequest) {
   try {
     // Supabaseクライアントを作成（認証用）
@@ -111,32 +123,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    console.log("Fetching notes for user:", user.id);
-
-    // Prisma経由でメモを取得
-    const notes = await prisma.note.findMany({
+    // ユーザーのメモに関連する関係性を取得
+    const relationships = await prisma.noteRelationship.findMany({
       where: {
-        userId: user.id,
+        OR: [
+          { sourceNote: { userId: user.id } },
+          { targetNote: { userId: user.id } },
+        ],
+      },
+      include: {
+        sourceNote: true,
+        targetNote: true,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    console.log("Notes fetched successfully:", notes.length);
+    console.log(
+      "Note relationships fetched successfully:",
+      relationships.length
+    );
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note) => ({
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      })),
+      relationships,
     });
   } catch (error) {
-    console.error("Notes fetch error:", error);
+    console.error("Note relationships fetch error:", error);
     return NextResponse.json(
-      { error: "メモの取得に失敗しました" },
+      { error: "関係性の取得に失敗しました" },
       { status: 500 }
     );
   }

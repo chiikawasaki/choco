@@ -13,7 +13,7 @@ import {
   Spinner,
   Badge,
 } from "@chakra-ui/react";
-import { AlignJustify, Trash2, Eye, Plus } from "lucide-react";
+import { AlignJustify, Trash2 } from "lucide-react";
 import { getUserNotes, deleteNote } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
 

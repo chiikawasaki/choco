@@ -3,9 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// メモを作成
-export async function POST(request: NextRequest) {
+// 特定のメモを削除
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    // paramsをawait
+    const { id: noteId } = await params;
+
     // Supabaseクライアントを作成（認証用）
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -37,49 +43,54 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    console.log("Authenticated user:", user.id);
+    console.log("Deleting note:", noteId, "for user:", user.id);
 
-    // リクエストボディを取得
-    const { title, content } = await request.json();
-
-    if (!title || !content) {
-      return NextResponse.json(
-        { error: "タイトルと内容は必須です" },
-        { status: 400 }
-      );
-    }
-
-    // Prisma経由でメモを作成
-    const note = await prisma.note.create({
-      data: {
-        title,
-        content,
+    // メモが存在し、自分のメモかチェック
+    const existingNote = await prisma.note.findFirst({
+      where: {
+        id: noteId,
         userId: user.id,
       },
     });
 
-    console.log("Note created successfully:", note.id);
+    if (!existingNote) {
+      return NextResponse.json(
+        { error: "メモが見つからないか、削除権限がありません" },
+        { status: 404 }
+      );
+    }
+
+    // メモを削除
+    await prisma.note.delete({
+      where: {
+        id: noteId,
+      },
+    });
+
+    console.log("Note deleted successfully:", noteId);
 
     return NextResponse.json({
       success: true,
-      note: {
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      },
+      message: "メモを削除しました",
     });
   } catch (error) {
-    console.error("Note creation error:", error);
+    console.error("Note deletion error:", error);
     return NextResponse.json(
-      { error: "メモの作成に失敗しました" },
+      { error: "メモの削除に失敗しました" },
       { status: 500 }
     );
   }
 }
 
-// ユーザーのメモ一覧を取得
-export async function GET(request: NextRequest) {
+// 特定のメモを更新
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    // paramsをawait
+    const { id: noteId } = await params;
+
     // Supabaseクライアントを作成（認証用）
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -111,32 +122,56 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
-    console.log("Fetching notes for user:", user.id);
+    const { title, content } = await request.json();
 
-    // Prisma経由でメモを取得
-    const notes = await prisma.note.findMany({
+    if (!title && !content) {
+      return NextResponse.json(
+        { error: "更新する内容がありません" },
+        { status: 400 }
+      );
+    }
+
+    // メモが存在し、自分のメモかチェック
+    const existingNote = await prisma.note.findFirst({
       where: {
+        id: noteId,
         userId: user.id,
-      },
-      orderBy: {
-        createdAt: "desc",
       },
     });
 
-    console.log("Notes fetched successfully:", notes.length);
+    if (!existingNote) {
+      return NextResponse.json(
+        { error: "メモが見つからないか、更新権限がありません" },
+        { status: 404 }
+      );
+    }
+
+    // メモを更新
+    const updatedNote = await prisma.note.update({
+      where: {
+        id: noteId,
+      },
+      data: {
+        ...(title && { title }),
+        ...(content && { content }),
+        updatedAt: new Date(),
+      },
+    });
+
+    console.log("Note updated successfully:", noteId);
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note) => ({
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      })),
+      note: {
+        ...updatedNote,
+        createdAt: updatedNote.createdAt.toISOString(),
+        updatedAt: updatedNote.updatedAt.toISOString(),
+      },
     });
   } catch (error) {
-    console.error("Notes fetch error:", error);
+    console.error("Note update error:", error);
     return NextResponse.json(
-      { error: "メモの取得に失敗しました" },
+      { error: "メモの更新に失敗しました" },
       { status: 500 }
     );
   }
