@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { createNote, CreateNoteData } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
-import { Plus } from "lucide-react";
+
 
 interface NoteFormProps {
   onNoteCreated?: () => void;
@@ -63,34 +63,20 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
 
   if (!isVisible) {
     return (
-      <Box textAlign="center" p={6}>
-        <Button
-          bg="#4338CA"
-          color="white"
-          size="lg"
-          onClick={() => setIsVisible(true)}
-        >
-          <Plus size={20} style={{ marginRight: "8px" }} />
-          新しいメモを作成
-        </Button>
-      </Box>
-    );
-  }
-
-  return (
-    <Box p={6} bg="white" borderRadius="lg" shadow="md" maxW="600px" mx="auto">
+      <Box
+      p={6}
+      borderRadius="lg"
+      shadow="md"
+      maxW="600px"
+      mx="auto"
+      bg="#F0F8FF"
+    >
       <HStack justify="space-between" mb={6}>
         <Heading size="md">新しいメモを投稿</Heading>
-        <Button size="sm" variant="outline" onClick={() => setIsVisible(false)}>
-          キャンセル
-        </Button>
       </HStack>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Field.Root invalid={!!errors.title} mb={4}>
-          <Field.Label>
-            タイトル <span style={{ color: "red" }}>*</span>
-          </Field.Label>
           <Input
             placeholder="メモのタイトルを入力"
             {...register("title", {
@@ -109,9 +95,6 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
         </Field.Root>
 
         <Field.Root invalid={!!errors.content} mb={6}>
-          <Field.Label>
-            内容 <span style={{ color: "red" }}>*</span>
-          </Field.Label>
           <Textarea
             placeholder="メモの内容を入力"
             rows={5}
@@ -154,5 +137,6 @@ export default function NoteForm({ onNoteCreated }: NoteFormProps) {
         </HStack>
       </form>
     </Box>
-  );
+    );
+  }
 }
