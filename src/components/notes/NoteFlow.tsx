@@ -91,7 +91,7 @@ export default function NoteFlow({
           target: rel.targetNoteId,
           type: "custom",
           data: { label: rel.relationshipType },
-          markerEnd: undefined, 
+          markerEnd: undefined,
         }));
 
         setEdges(existingEdges);
@@ -106,8 +106,6 @@ export default function NoteFlow({
   // エッジの接続処理
   const onConnect = useCallback(
     (params: Connection) => {
-
-
       // パラメータの検証
       if (!params.source || !params.target) {
         console.error("接続パラメータが不完全です:", params);
@@ -156,14 +154,6 @@ export default function NoteFlow({
         });
     },
     [edges, createNoteRelationship]
-  );
-
-  // エッジの削除処理
-  const onEdgeDelete = useCallback(
-    (edgeId: string) => {
-      onConnectionDelete?.(edgeId);
-    },
-    [onConnectionDelete]
   );
 
   // エッジの選択状態変更を検知
@@ -261,7 +251,7 @@ export default function NoteFlow({
         zoomOnPinch={true}
         panOnScroll={false}
         selectionOnDrag={false}
-        multiSelectionKeyCode="Shift"
+        selectNodesOnDrag={false}
         defaultEdgeOptions={{
           type: "custom",
           markerEnd: undefined,
