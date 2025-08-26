@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Node,
@@ -18,7 +18,7 @@ import { Note, getNoteRelationships } from "@/lib/notes";
 import NoteNode from "./NoteNode";
 import CustomEdge from "./CustomEdge";
 import { createNoteRelationship } from "@/lib/notes";
-import { Box } from "@chakra-ui/react";
+import { Box, Button, Text } from "@chakra-ui/react";
 
 // カスタムノードタイプ
 const nodeTypes = {
@@ -40,12 +40,13 @@ interface NoteFlowProps {
 export default function NoteFlow({
   notes,
   onNoteUpdate,
-  onConnectionCreate,
   onConnectionDelete,
 }: NoteFlowProps) {
   // ノードとエッジの状態管理
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // メモをノードに変換
   const noteNodes: Node[] = useMemo(() => {
@@ -61,6 +62,9 @@ export default function NoteFlow({
         },
         draggable: true,
         zIndex: note.zIndex,
+        connectable: true, // 接続可能であることを明示
+        selectable: true,
+        deletable: false,
       };
       console.log("ノード作成:", node);
       return node;
@@ -87,6 +91,7 @@ export default function NoteFlow({
           target: rel.targetNoteId,
           type: "custom",
           data: { label: rel.relationshipType },
+          markerEnd: undefined, 
         }));
 
         setEdges(existingEdges);
@@ -101,9 +106,21 @@ export default function NoteFlow({
   // エッジの接続処理
   const onConnect = useCallback(
     (params: Connection) => {
-      console.log("新しい接続作成:", params);
 
-      // 既存のエッジと重複していないかチェック
+
+      // パラメータの検証
+      if (!params.source || !params.target) {
+        console.error("接続パラメータが不完全です:", params);
+        return;
+      }
+
+      // 同じノードへの自己接続を防ぐ
+      if (params.source === params.target) {
+        console.log("自己接続は許可されていません");
+        return;
+      }
+
+      // 既存のエッジと重複していないかチェック（双方向も含む）
       const isDuplicate = edges.some(
         (edge) =>
           (edge.source === params.source && edge.target === params.target) ||
@@ -122,6 +139,7 @@ export default function NoteFlow({
         target: params.target!,
         type: "custom",
         data: { label: "connection" },
+        markerEnd: undefined, // 矢印を非表示
       };
 
       setEdges((eds) => addEdge(newEdge, eds));
@@ -147,6 +165,45 @@ export default function NoteFlow({
     },
     [onConnectionDelete]
   );
+
+  // エッジの選択状態変更を検知
+  const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+    setSelectedEdge(edge.id);
+    setShowDeleteConfirm(true);
+  }, []);
+
+  // エッジの削除を実行
+  const handleDeleteEdge = useCallback(() => {
+    if (selectedEdge) {
+      // エッジを削除
+      setEdges((eds) => eds.filter((edge) => edge.id !== selectedEdge));
+
+      // データベースからも削除
+      onConnectionDelete?.(selectedEdge);
+
+      // 状態をリセット
+      setSelectedEdge(null);
+      setShowDeleteConfirm(false);
+    }
+  }, [selectedEdge, setEdges, onConnectionDelete]);
+
+  // 削除確認をキャンセル
+  const handleCancelDelete = useCallback(() => {
+    setSelectedEdge(null);
+    setShowDeleteConfirm(false);
+  }, []);
+
+  // キーボードイベントでエッジを削除
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Delete" && selectedEdge) {
+        handleDeleteEdge();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [selectedEdge, handleDeleteEdge]);
 
   // ノードの位置変更を検知
   const onNodeDragStop = useCallback(
@@ -175,22 +232,40 @@ export default function NoteFlow({
     notes: notes.length,
     nodes: nodes.length,
     noteNodes: noteNodes.length,
+    edges: edges.length,
+    selectedEdge,
+    showDeleteConfirm,
   });
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100%", height: "100%", position: "relative" }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onEdgeClick={onEdgeClick}
         onNodeDragStop={onNodeDragStop}
         onSelectionChange={onSelectionChange}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
         attributionPosition="bottom-left"
+        connectOnClick={true}
+        deleteKeyCode="Delete"
+        snapToGrid={false}
+        snapGrid={[15, 15]}
+        panOnDrag={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        panOnScroll={false}
+        selectionOnDrag={false}
+        multiSelectionKeyCode="Shift"
+        defaultEdgeOptions={{
+          type: "custom",
+          markerEnd: undefined,
+        }}
       >
         <Controls />
         <Background />
@@ -198,6 +273,38 @@ export default function NoteFlow({
           <MiniMap />
         </Box>
       </ReactFlow>
+
+      {/* 削除確認UI */}
+      {showDeleteConfirm && (
+        <Box
+          position="absolute"
+          top="50%"
+          left="50%"
+          transform="translate(-50%, -50%)"
+          bg="white"
+          p={6}
+          borderRadius="lg"
+          boxShadow="xl"
+          border="1px solid"
+          borderColor="gray.200"
+          zIndex="1000"
+        >
+          <Text fontSize="lg" fontWeight="bold" mb={4}>
+            関係性を削除しますか？
+          </Text>
+          <Text color="gray.600" mb={6}>
+            この操作は取り消せません。
+          </Text>
+          <Box display="flex" gap={3} justifyContent="flex-end">
+            <Button variant="outline" onClick={handleCancelDelete}>
+              キャンセル
+            </Button>
+            <Button colorScheme="red" onClick={handleDeleteEdge}>
+              削除
+            </Button>
+          </Box>
+        </Box>
+      )}
     </div>
   );
 }
