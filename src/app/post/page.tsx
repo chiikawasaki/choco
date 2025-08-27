@@ -1,5 +1,3 @@
-"use client";
-
 import { Box, Button } from "@chakra-ui/react";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -7,19 +5,12 @@ import Link from "next/link";
 const Postpage = () => {
   return (
     <Box h="100vh" bg="#f0f0f0">
-      {/* ← 左上の戻る矢印アイコン（Linkで囲む） */}
-      <Link href="/" passHref>
-        <Box
-          as="span"
-          position="fixed"
-          top="16px"
-          left="16px"
-          cursor="pointer"
-          _hover={{ color: "#555" }}
-        >
+      {/* ← 左上の戻る矢印アイコン（Boxでラップ） */}
+      <Box position="fixed" top="16px" left="16px" cursor="pointer">
+        <Link href="/">
           <ArrowLeft size={28} />
-        </Box>
-      </Link>
+        </Link>
+      </Box>
 
       {/* 右上の保存ボタン */}
       <Button
