@@ -25,7 +25,6 @@ function CustomEdge({
 
   return (
     <>
-      {/* メインの線 */}
       <path
         id={id}
         className="react-flow__edge-path"
@@ -34,8 +33,6 @@ function CustomEdge({
         strokeWidth={2}
         fill="none"
       />
-
-      {/* クリックしやすい太い線（透明） */}
       <path
         id={`${id}-clickable`}
         className="react-flow__edge-path"
