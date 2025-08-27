@@ -289,7 +289,7 @@ export default function NoteFlow({
             <Button variant="outline" onClick={handleCancelDelete}>
               キャンセル
             </Button>
-            <Button colorScheme="red" onClick={handleDeleteEdge}>
+            <Button bg="#4338CA" onClick={handleDeleteEdge}>
               削除
             </Button>
           </Box>
