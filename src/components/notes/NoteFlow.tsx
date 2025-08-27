@@ -264,7 +264,6 @@ export default function NoteFlow({
         </Box>
       </ReactFlow>
 
-      {/* 削除確認UI */}
       {showDeleteConfirm && (
         <Box
           position="absolute"
