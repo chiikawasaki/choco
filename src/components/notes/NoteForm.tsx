@@ -11,9 +11,9 @@ import {
   Textarea,
   HStack,
 } from "@chakra-ui/react";
+import { Plus } from "lucide-react";
 import { createNote, CreateNoteData } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
-import { Plus } from "lucide-react";
 
 interface NoteFormProps {
   onNoteCreated?: () => void;
@@ -112,96 +112,93 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
 
     if (!isVisible) {
       return (
-        <Box textAlign="center" p={6}>
-          <Button
-            bg="#4338CA"
-            color="white"
-            size="lg"
-            onClick={() => setIsVisible(true)}
-          >
-            <Plus size={20} style={{ marginRight: "8px" }} />
-            新しいメモを作成
-          </Button>
+        <Box
+          p={6}
+          borderRadius="lg"
+          shadow="md"
+          maxW="600px"
+          mx="auto"
+          bg="#F0F8FF"
+        >
+          <HStack justify="space-between" mb={6}>
+            <Heading size="md">新しいメモを投稿</Heading>
+          </HStack>
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Field.Root invalid={!!errors.title} mb={4}>
+              <Input
+                placeholder="メモのタイトルを入力"
+                {...register("title", {
+                  required: "タイトルは必須です",
+                  maxLength: {
+                    value: 100,
+                    message: "タイトルは100文字以下で入力してください",
+                  },
+                })}
+              />
+              {errors.title && (
+                <Field.ErrorText color="red" fontSize="sm" mt="1">
+                  {errors.title.message}
+                </Field.ErrorText>
+              )}
+            </Field.Root>
+
+            <Field.Root invalid={!!errors.content} mb={6}>
+              <Textarea
+                placeholder="メモの内容を入力"
+                rows={5}
+                {...register("content", {
+                  required: "内容は必須です",
+                  maxLength: {
+                    value: 1000,
+                    message: "内容は1000文字以下で入力してください",
+                  },
+                })}
+              />
+              {errors.content && (
+                <Field.ErrorText color="red" fontSize="sm" mt="1">
+                  {errors.content.message}
+                </Field.ErrorText>
+              )}
+            </Field.Root>
+
+            <HStack gap={3}>
+              <Button
+                type="submit"
+                bg="#4338CA"
+                color="white"
+                size="lg"
+                loading={isLoading}
+                loadingText="投稿中..."
+              >
+                投稿
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                onClick={() => setIsVisible(false)}
+                disabled={isLoading}
+              >
+                キャンセル
+              </Button>
+            </HStack>
+          </form>
         </Box>
       );
     }
 
     return (
-      <Box
-        p={6}
-        bg="white"
-        borderRadius="lg"
-        shadow="md"
-        maxW="600px"
-        mx="auto"
-      >
-        <HStack justify="space-between" mb={6}>
-          <Heading size="md">新しいメモを投稿</Heading>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setIsVisible(false)}
-          >
-            キャンセル
-          </Button>
-        </HStack>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <Field.Root invalid={!!errors.title} mb={4}>
-            <Field.Label>
-              タイトル <span style={{ color: "red" }}>*</span>
-            </Field.Label>
-            <Input
-              placeholder="メモのタイトルを入力"
-              {...register("title", {
-                required: "タイトルは必須です",
-                maxLength: {
-                  value: 100,
-                  message: "タイトルは100文字以下で入力してください",
-                },
-              })}
-            />
-            {errors.title && (
-              <Field.ErrorText color="red" fontSize="sm" mt="1">
-                {errors.title.message}
-              </Field.ErrorText>
-            )}
-          </Field.Root>
-
-          <Field.Root invalid={!!errors.content} mb={6}>
-            <Field.Label>
-              内容 <span style={{ color: "red" }}>*</span>
-            </Field.Label>
-            <Textarea
-              placeholder="メモの内容を入力"
-              rows={5}
-              {...register("content", {
-                required: "内容は必須です",
-                maxLength: {
-                  value: 1000,
-                  message: "内容は1000文字以下で入力してください",
-                },
-              })}
-            />
-            {errors.content && (
-              <Field.ErrorText color="red" fontSize="sm" mt="1">
-                {errors.content.message}
-              </Field.ErrorText>
-            )}
-          </Field.Root>
-
-          <HStack gap={3}>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => setIsVisible(false)}
-              disabled={isLoading}
-            >
-              キャンセル
-            </Button>
-          </HStack>
-        </form>
+      <Box textAlign="center" p={6}>
+        <Button
+          bg="#4338CA"
+          color="white"
+          size="lg"
+          onClick={() => setIsVisible(true)}
+        >
+          <Plus size={20} style={{ marginRight: "8px" }} />
+          新しいメモを作成
+        </Button>
       </Box>
     );
   }
