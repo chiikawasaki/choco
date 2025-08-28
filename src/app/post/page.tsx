@@ -92,7 +92,7 @@ const PostPage = () => {
   }
 
   return (
-    <Box p={8} position="relative" height="100vh" bg="#f0f0f0">
+    <Box p={8} position="relative" height="100vh">
       <Box position="fixed" top="16px" left="16px" cursor="pointer">
         <Link href="/">
           <ArrowLeft size={28} />
@@ -132,9 +132,7 @@ const PostPage = () => {
         justifyContent="space-between"
         alignItems="center"
         mb={8}
-      >
-        <Heading size="lg">投稿ページ</Heading>
-      </Box>
+      ></Box>
       <NoteForm ref={noteFormRef} />
     </Box>
   );
