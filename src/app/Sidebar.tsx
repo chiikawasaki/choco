@@ -126,7 +126,8 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                   {notes.map((note) => (
                     <Box
                       key={note.id}
-                      p={3}
+                      pb={3}
+                      px={3}
                       bg="white"
                       borderRadius="md"
                       shadow="sm"
@@ -141,18 +142,38 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                       }}
                       onClick={() => setSelectedNote(note)}
                     >
-                      <HStack
-                        display="flex"
-                        colorScheme="blue"
-                        alignItems="center"
-                        justify="space-between"
+                      <Box
+                        position="relative"
                         mt={2}
+                        display="flex"
+                        flexDirection="column"
+                        justifyContent="center"
+                        alignItems="flex-start"
+                        minHeight="80px"
+                        pl={4}
                       >
-                        <HStack>
-                          <AlignJustify
-                            style={{ marginRight: "8px" }}
-                            size={15}
-                          />
+                        <Box
+                          position="absolute"
+                          top="0"
+                          right="0"
+                          p={2}
+                          zIndex={1}
+                        >
+                          <Ellipsis />
+                        </Box>
+
+                        <HStack
+                          justify="flex-start"
+                          alignItems="flex-start"
+                          mb={2}
+                          mt={10}
+                        >
+                          <Box mt={1}>
+                            <AlignJustify
+                              style={{ marginRight: "8px" }}
+                              size={15}
+                            />
+                          </Box>
                           <Text
                             fontSize="sm"
                             fontWeight="semibold"
@@ -163,20 +184,18 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                             {note.title}
                           </Text>
                         </HStack>
-                        <Box display="flex" gap="0.5rem">
-                          <Ellipsis />
-                        </Box>
-                      </HStack>
-                      <Text
-                        fontSize="xs"
-                        color="gray.600"
-                        overflow="hidden"
-                        textOverflow="ellipsis"
-                        whiteSpace="nowrap"
-                        mb={2}
-                      >
-                        {note.content}
-                      </Text>
+
+                        <Text
+                          fontSize="xs"
+                          color="gray.600"
+                          overflow="hidden"
+                          textOverflow="ellipsis"
+                          whiteSpace="nowrap"
+                          textAlign="left"
+                        >
+                          {note.content}
+                        </Text>
+                      </Box>
 
                       <HStack gap={2} justify="flex-end">
                         <Button
@@ -196,7 +215,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                 </VStack>
               )}
 
-              {/* 選択されたメモの詳細表示 */}
               {selectedNote && (
                 <Box mt={4} p={4} bg="white" borderRadius="md" shadow="md">
                   <Text fontSize="lg" fontWeight="bold" mb={2} color="#4338CA">
