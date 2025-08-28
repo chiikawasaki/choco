@@ -13,7 +13,7 @@ import {
   Spinner,
   Badge,
 } from "@chakra-ui/react";
-import { AlignJustify, Trash2 } from "lucide-react";
+import { AlignJustify, Ellipsis, Trash2 } from "lucide-react";
 import { getUserNotes, deleteNote } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
 
@@ -152,9 +152,9 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                         >
                           {note.title}
                         </Text>
-                        <Badge size="sm" colorScheme="blue">
-                          {new Date(note.createdAt).toLocaleDateString("ja-JP")}
-                        </Badge>
+                        <Box display="flex" gap="0.5rem">
+                          <Ellipsis />
+                        </Box>
                       </HStack>
 
                       <Text
