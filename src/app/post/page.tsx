@@ -3,10 +3,55 @@
 import { Button, Box, Spinner, Text, Heading } from "@chakra-ui/react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
-import NoteForm from "@/components/notes/NoteForm";
+import NoteForm, { NoteFormRef } from "@/components/notes/NoteForm";
+import { useRef, useState } from "react";
+import { toaster } from "@/components/ui/toaster";
+import { useRouter } from "next/navigation";
 
 const PostPage = () => {
   const { user, loading } = useAuth();
+  const noteFormRef = useRef<NoteFormRef>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+
+  // 保存ボタンで投稿を実行
+  const handleSave = async () => {
+    if (!noteFormRef.current) {
+      toaster.create({
+        title: "エラー",
+        description: "フォームが見つかりません",
+        type: "error",
+      });
+      return;
+    }
+
+    const isValid = await noteFormRef.current.triggerValidation();
+    if (!isValid) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const success = await noteFormRef.current.submitForm();
+      if (success) {
+        toaster.create({
+          title: "投稿完了",
+          description: "メモが正常に投稿されました",
+          type: "success",
+        });
+      }
+    } catch {
+      toaster.create({
+        title: "投稿エラー",
+        description: "投稿に失敗しました",
+        type: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+    router.push("/");
+  };
 
   // ローディング中はスピナーを表示
   if (loading) {
@@ -46,6 +91,11 @@ const PostPage = () => {
 
   return (
     <Box p={8} position="relative" height="100vh" bg="#f0f0f0">
+      <Box position="fixed" top="16px" left="16px" cursor="pointer">
+        <Link href="/">
+          <ArrowLeft size={28} />
+        </Link>
+      </Box>
       <Box
         position="fixed"
         top="32px"
@@ -59,8 +109,12 @@ const PostPage = () => {
           color="white"
           borderRadius="30px"
           padding="15px 25px"
+          zIndex="1000"
+          onClick={handleSave}
+          disabled={isSubmitting}
+          loading={isSubmitting}
         >
-          保存
+          {isSubmitting ? "保存中..." : "保存"}
         </Button>
         <Button
           variant="outline"
@@ -79,9 +133,10 @@ const PostPage = () => {
       >
         <Heading size="lg">投稿ページ</Heading>
       </Box>
-      <NoteForm />
+      <NoteForm ref={noteFormRef} />
     </Box>
   );
 };
+
 
 export default PostPage;
