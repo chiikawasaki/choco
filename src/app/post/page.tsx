@@ -133,7 +133,7 @@ const PostPage = () => {
         alignItems="center"
         mb={8}
       >
-        <Heading size="lg">投稿ページ</Heading>
+        <Heading size="lg"></Heading>
       </Box>
       <NoteForm ref={noteFormRef} />
     </Box>
