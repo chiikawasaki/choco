@@ -91,6 +91,11 @@ const PostPage = () => {
 
   return (
     <Box p={8} position="relative" height="100vh" bg="#f0f0f0">
+      <Box position="fixed" top="16px" left="16px" cursor="pointer">
+        <Link href="/">
+          <ArrowLeft size={28} />
+        </Link>
+      </Box>
       <Box
         position="fixed"
         top="32px"
@@ -132,5 +137,6 @@ const PostPage = () => {
     </Box>
   );
 };
+
 
 export default PostPage;
