@@ -147,24 +147,27 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                           {new Date(note.createdAt).toLocaleDateString("ja-JP")}
                         </Badge>
                       </HStack>
-                      <Box
+                      <HStack
                         display="flex"
                         colorScheme="blue"
                         alignItems="center"
+                        justify="space-between"
                       >
-                        <AlignJustify
-                          style={{ marginRight: "8px" }}
-                          size={15}
-                        />
-                        <Text
-                          fontSize="sm"
-                          fontWeight="semibold"
-                          overflow="hidden"
-                          textOverflow="ellipsis"
-                          whiteSpace="nowrap"
-                        >
-                          {note.title}
-                        </Text>
+                        <HStack>
+                          <AlignJustify
+                            style={{ marginRight: "8px" }}
+                            size={15}
+                          />
+                          <Text
+                            fontSize="sm"
+                            fontWeight="semibold"
+                            overflow="hidden"
+                            textOverflow="ellipsis"
+                            whiteSpace="nowrap"
+                          >
+                            {note.title}
+                          </Text>
+                        </HStack>
                         <Box display="flex" gap="0.5rem">
                           <Ellipsis />
                         </Box>
