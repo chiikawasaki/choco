@@ -167,8 +167,9 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                           alignItems="flex-start"
                           mb={2}
                           mt={10}
+                          w="100%"
                         >
-                          <Box mt={1}>
+                          <Box mt={1} flexShrink={0}>
                             <AlignJustify
                               style={{ marginRight: "8px" }}
                               size={15}
@@ -179,7 +180,9 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                             fontWeight="semibold"
                             overflow="hidden"
                             textOverflow="ellipsis"
-                            whiteSpace="nowrap"
+                            whiteSpace="normal"
+                            wordBreak="break-word"
+                            maxW="calc(100% - 30px)"
                           >
                             {note.title}
                           </Text>
