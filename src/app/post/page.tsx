@@ -7,6 +7,8 @@ import NoteForm, { NoteFormRef } from "@/components/notes/NoteForm";
 import { useRef, useState } from "react";
 import { toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 const PostPage = () => {
   const { user, loading } = useAuth();
@@ -137,6 +139,5 @@ const PostPage = () => {
     </Box>
   );
 };
-
 
 export default PostPage;
