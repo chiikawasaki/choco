@@ -11,7 +11,6 @@ import {
   HStack,
   Button,
   Spinner,
-  Badge,
 } from "@chakra-ui/react";
 import { AlignJustify, Ellipsis, Trash2 } from "lucide-react";
 import { getUserNotes, deleteNote } from "@/lib/notes";
@@ -142,16 +141,12 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                       }}
                       onClick={() => setSelectedNote(note)}
                     >
-                      <HStack justify="space-between" mb={2}>
-                        <Badge size="sm" colorScheme="blue">
-                          {new Date(note.createdAt).toLocaleDateString("ja-JP")}
-                        </Badge>
-                      </HStack>
                       <HStack
                         display="flex"
                         colorScheme="blue"
                         alignItems="center"
                         justify="space-between"
+                        mt={2}
                       >
                         <HStack>
                           <AlignJustify
