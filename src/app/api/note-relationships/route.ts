@@ -47,15 +47,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 両方のメモが存在し、自分のメモかチェック
-    const [sourceNote, targetNote] = await Promise.all([
-      prisma.note.findFirst({
-        where: { id: sourceNoteId, userId: user.id },
-      }),
-      prisma.note.findFirst({
-        where: { id: targetNoteId, userId: user.id },
-      }),
-    ]);
+    // 両方のメモが存在し、自分のメモかチェック（直列実行で接続問題を回避）
+    const sourceNote = await prisma.note.findFirst({
+      where: { id: sourceNoteId, userId: user.id },
+    });
+
+    const targetNote = await prisma.note.findFirst({
+      where: { id: targetNoteId, userId: user.id },
+    });
 
     if (!sourceNote || !targetNote) {
       return NextResponse.json(
