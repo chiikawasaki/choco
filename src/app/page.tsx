@@ -1,33 +1,35 @@
-import { Button } from "@chakra-ui/react";
-import { Plus } from "lucide-react";
-import { AlignJustify } from "lucide-react";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
+import { redirect } from "next/navigation";
+import HomeClient from "./page.client";
 
-export default function Home() {
-  return (
-    <div>
-      <AlignJustify
-        size={25}
-        style={{ position: "absolute", top: "6px", left: "10px" }}
-      />
-         <Button
-        size="sm"
-        variant="subtle"
-        bg="#4338CA"
-        color="white"
-        css={{ borderRadius: "30px", margin: "10px", padding: "15px 25px" }}
-      >
-        保存する
-      </Button>
-        <Button
-        bg="#4338CA"
-        css={{
-          width: "70px",
-          height: "70px",
-          borderRadius: "50%",
-        }}
-      >
-        <Plus color="white" />
-      </Button>
-    </div>
+export default async function Home() {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        },
+      },
+    }
   );
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    redirect("/login");
+  }
+
+  return <HomeClient user={user} />;
 }

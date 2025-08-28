@@ -1,37 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Choco - メモ管理アプリケーション
 
-## Getting Started
+## 概要
 
-First, run the development server:
+Choco は、メモ同士の関係を視覚的に把握でき、気軽にメモができる Web アプリケーションです。直感的なインターフェースで、アイデアやタスクを簡単に記録・管理できます。メモ同士の関係性を気軽に作成・把握できるのが魅力です。
+
+## 主な機能
+
+### メモ作成・管理
+
+- シンプルで使いやすいメモ作成機能
+- タイトルとコンテンツを含むメモの保存
+
+### 検索・フィルタリング
+
+- キーワードによるメモ検索
+
+### ユーザー認証
+
+- Supabase による安全な認証システム
+- ユーザー別のメモ管理
+- ログイン・サインアップ機能
+
+## 技術スタック
+
+### フロントエンド
+
+- **Next.js 15** - React フレームワーク
+- **React 19** - UI ライブラリ
+- **TypeScript** - 型安全性
+- **Chakra UI** - UI コンポーネントライブラリ
+- **Tailwind CSS** - スタイリング
+
+### バックエンド・データベース
+
+- **Supabase** - 認証・データベース
+- **PostgreSQL** - リレーショナルデータベース
+- **Prisma** - ORM
+
+### その他
+
+- **Lucide React** - アイコン
+
+## セットアップ
+
+### 前提条件
+
+- Node.js 18 以上
+- npm
+
+### インストール
+
+1. リポジトリをクローン
+
+```bash
+git clone `https://github.com/chiikawasaki/choco.git`
+cd choco
+```
+
+2. 依存関係をインストール
+
+```bash
+npm i
+```
+
+3. 環境変数を設定
+   `.env.local`ファイルを作成し、以下の変数を設定してください：
+
+```env
+DATABASE_URL="your-supabase-database-url"
+NEXT_PUBLIC_SUPABASE_URL="your-supabase-url"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+```
+
+4. データベースのセットアップ
+
+```bash
+npx prisma generate
+```
+
+5. 開発サーバーを起動
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+アプリケーションは `http://localhost:3000` で起動します。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 使用方法
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 新規ユーザー
 
-## Learn More
+1. `/sign-up` ページでアカウントを作成
+2. 確認メールを確認
+3. `/login` ページでログイン
 
-To learn more about Next.js, take a look at the following resources:
+### メモの作成
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. ホーム画面右下または右上の新規作成ボタンをクリック
+2. `/post`に遷移
+3. フォームからタイトルと内容を入力し投稿
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### メモの検索
 
-## Deploy on Vercel
+作成中
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## プロジェクト構造
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# choco
+```
+choco/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── login/          # ログインページ
+│   │   ├── sign-up/        # サインアップページ
+│   │   ├── Sidebar.tsx     # サイドバーコンポーネント
+│   │   ├── Searchbar.tsx   # 検索バーコンポーネント
+│   │   └── page.tsx        # ホームページ
+│   ├── components/          # UIコンポーネント
+│   └── lib/                # ユーティリティ・設定
+├── prisma/                 # データベーススキーマ
+└── public/                 # 静的ファイル
+```
+## レビューして欲しい点
+
+- アーキテクチャ
+- コードについて直した方がいい点
+   - スピードと品質のバランスをどこでとるか
+- UI、色の使い方など
+   - メモ同士を結ぶことでみやすくなると思ったが本当にそうなっているのか
+- 認証やDBについてAIをかなりつかってしまっているのでちゃんとできているか不安
+   - 最低限直した方がいいところがあれば教えていただきたい
+- 機能について
+   - 追加した方がいい機能やないほうがいい機能
