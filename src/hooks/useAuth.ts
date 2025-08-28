@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabaseClient } from "@/lib/supabase-client";
+import { Session, User } from "@supabase/supabase-js";
 
 export function useAuth() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -56,25 +57,27 @@ export function useAuth() {
     // 認証状態の変更を監視
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: string, session: any) => {
-      console.log("Auth state change:", event, session?.user?.id);
+    } = supabase.auth.onAuthStateChange(
+      async (event: string, session: Session | null) => {
+        console.log("Auth state change:", event, session?.user?.id);
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      if (event === "SIGNED_IN" && session?.user) {
-        setUser(session.user);
-        setLoading(false);
-      } else if (event === "SIGNED_OUT") {
-        setUser(null);
-        setLoading(false);
-        router.replace("/login");
-      } else if (event === "INITIAL_SESSION") {
-        if (session?.user) {
+        if (event === "SIGNED_IN" && session?.user) {
           setUser(session.user);
+          setLoading(false);
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+          setLoading(false);
+          router.replace("/login");
+        } else if (event === "INITIAL_SESSION") {
+          if (session?.user) {
+            setUser(session.user);
+          }
+          setLoading(false);
         }
-        setLoading(false);
       }
-    });
+    );
 
     return () => {
       mounted = false;
