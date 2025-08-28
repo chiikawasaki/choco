@@ -112,14 +112,7 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
 
     if (!isVisible) {
       return (
-        <Box
-          p={6}
-          borderRadius="lg"
-          shadow="md"
-          maxW="600px"
-          mx="auto"
-          bg="#F0F8FF"
-        >
+        <>
           <HStack justify="space-between" mb={6}>
             <Heading size="md">新しいメモを投稿</Heading>
           </HStack>
@@ -128,6 +121,11 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
             <Field.Root invalid={!!errors.title} mb={4}>
               <Input
                 placeholder="メモのタイトルを入力"
+                fontSize="lg"
+                border="none"
+                boxShadow="none"
+                outline="none"
+                _focus={{ boxShadow: "none" }}
                 {...register("title", {
                   required: "タイトルは必須です",
                   maxLength: {
@@ -147,6 +145,10 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
               <Textarea
                 placeholder="メモの内容を入力"
                 rows={5}
+                border="none"
+                boxShadow="none"
+                outline="none"
+                _focus={{ boxShadow: "none" }}
                 {...register("content", {
                   required: "内容は必須です",
                   maxLength: {
@@ -161,30 +163,8 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
                 </Field.ErrorText>
               )}
             </Field.Root>
-
-            <HStack gap={3}>
-              <Button
-                type="submit"
-                bg="#4338CA"
-                color="white"
-                size="lg"
-                loading={isLoading}
-                loadingText="投稿中..."
-              >
-                投稿
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                onClick={() => setIsVisible(false)}
-                disabled={isLoading}
-              >
-                キャンセル
-              </Button>
-            </HStack>
           </form>
-        </Box>
+        </>
       );
     }
 

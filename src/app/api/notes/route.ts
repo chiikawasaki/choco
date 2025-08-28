@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { Note } from "@/lib/notes";
 
 // メモを作成
 export async function POST(request: NextRequest) {
@@ -127,7 +128,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note) => ({
+      notes: notes.map((note: Note) => ({
         ...note,
         createdAt: note.createdAt.toISOString(),
         updatedAt: note.updatedAt.toISOString(),
