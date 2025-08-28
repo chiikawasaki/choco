@@ -143,6 +143,19 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                       onClick={() => setSelectedNote(note)}
                     >
                       <HStack justify="space-between" mb={2}>
+                        <Badge size="sm" colorScheme="blue">
+                          {new Date(note.createdAt).toLocaleDateString("ja-JP")}
+                        </Badge>
+                      </HStack>
+                      <Box
+                        display="flex"
+                        colorScheme="blue"
+                        alignItems="center"
+                      >
+                        <AlignJustify
+                          style={{ marginRight: "8px" }}
+                          size={15}
+                        />
                         <Text
                           fontSize="sm"
                           fontWeight="semibold"
@@ -156,7 +169,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                           <Ellipsis />
                         </Box>
                       </HStack>
-
                       <Text
                         fontSize="xs"
                         color="gray.600"
