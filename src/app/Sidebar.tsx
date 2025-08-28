@@ -95,7 +95,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
-          <Drawer.Content css={{ backgroundColor: "#e0f7fa", width: "400px" }}>
+          <Drawer.Content css={{ backgroundColor: "#ecf9ff", width: "400px" }}>
             <Box p={4}>
               <HStack justify="space-between" mb={4}>
                 <Text fontSize="xl" fontWeight="bold" color="#4338CA">
