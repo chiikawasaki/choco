@@ -2,8 +2,9 @@
 
 import { memo } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, Flex } from "@chakra-ui/react";
 import { Note } from "@/lib/notes";
+import { Trash2, Upload, Scan } from "lucide-react";
 
 interface NoteNodeData {
   note: Note;
@@ -34,6 +35,10 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
 
       {/* ノードの内容 */}
       <VStack align="stretch" gap={2}>
+        <Text fontSize="xs" color="gray.500" textAlign="right">
+          {new Date(note.createdAt).toLocaleDateString("ja-JP")}
+        </Text>
+
         <Text
           fontSize="lg"
           fontWeight="bold"
@@ -57,10 +62,11 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
         >
           {note.content}
         </Text>
-
-        <Text fontSize="xs" color="gray.500" textAlign="right">
-          {new Date(note.createdAt).toLocaleDateString("ja-JP")}
-        </Text>
+        <Flex justifyContent="flex-end" gap={2}>
+          <Trash2 size={18} color="gray" />
+          <Upload size={18} color="gray" />
+          <Scan size={18} color="gray" />
+        </Flex>
       </VStack>
 
       {/* 出力ハンドル（右側） */}
