@@ -63,9 +63,9 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
           {note.content}
         </Text>
         <Flex justifyContent="flex-end" gap={2}>
-          <Trash2 size={18} />
-          <Upload size={18} />
-          <Scan size={18} />
+          <Trash2 size={18} color="gray" />
+          <Upload size={18} color="gray" />
+          <Scan size={18} color="gray" />
         </Flex>
       </VStack>
 
