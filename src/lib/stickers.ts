@@ -104,6 +104,40 @@ export const parseCanvasSticker = (
   };
 };
 
+const extractErrorMessage = (body: unknown, defaultMessage: string): string => {
+  if (
+    typeof body === "object" &&
+    body !== null &&
+    "error" in body &&
+    typeof (body as { error?: unknown }).error === "string"
+  ) {
+    const message = (body as { error: string }).error.trim();
+    if (message) {
+      return message;
+    }
+  }
+  return defaultMessage;
+};
+
+const ensureOk = async (
+  response: Response,
+  defaultMessage: string
+): Promise<void> => {
+  if (response.ok) {
+    return;
+  }
+
+  let message = defaultMessage;
+  try {
+    const body = await response.json();
+    message = extractErrorMessage(body, defaultMessage);
+  } catch {
+    // ignore JSON parse errors and fallback to default message
+  }
+
+  throw new Error(message);
+};
+
 export async function getStickers(): Promise<Sticker[]> {
   const response = await fetch("/api/stickers", {
     method: "GET",
@@ -112,10 +146,7 @@ export async function getStickers(): Promise<Sticker[]> {
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "ステッカーの取得に失敗しました");
-  }
+  await ensureOk(response, "ステッカーの取得に失敗しました");
 
   const result = (await response.json()) as {
     stickers: StickerResponse[];
@@ -131,10 +162,7 @@ export async function getCanvasStickers(): Promise<CanvasSticker[]> {
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "キャンバスステッカーの取得に失敗しました");
-  }
+  await ensureOk(response, "キャンバスステッカーの取得に失敗しました");
 
   const result = (await response.json()) as {
     stickers: CanvasStickerResponse[];
@@ -153,10 +181,7 @@ export async function createCanvasSticker(
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "ステッカーの追加に失敗しました");
-  }
+  await ensureOk(response, "ステッカーの追加に失敗しました");
 
   const result = (await response.json()) as {
     sticker: CanvasStickerResponse;
@@ -176,10 +201,7 @@ export async function updateCanvasSticker(
     body: JSON.stringify(data),
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "ステッカーの更新に失敗しました");
-  }
+  await ensureOk(response, "ステッカーの更新に失敗しました");
 
   const result = (await response.json()) as {
     sticker: CanvasStickerResponse;
@@ -195,8 +217,5 @@ export async function deleteCanvasSticker(id: string): Promise<void> {
     },
   });
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "ステッカーの削除に失敗しました");
-  }
+  await ensureOk(response, "ステッカーの削除に失敗しました");
 }
