@@ -121,7 +121,7 @@ export async function GET() {
       },
     });
 
-    const orderMap = new Map(
+    const orderMap = new Map<string, number>(
       DEFAULT_STICKERS.map((sticker, index) => [sticker.storagePath, index])
     );
 

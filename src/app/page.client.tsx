@@ -1,6 +1,13 @@
 "use client";
 
-import { Button, Box, Spinner, Text, CloseButton } from "@chakra-ui/react";
+import {
+  Button,
+  Box,
+  Spinner,
+  Text,
+  CloseButton,
+  Image,
+} from "@chakra-ui/react";
 import { Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
@@ -423,8 +430,7 @@ export default function HomeClient({ user }: HomeClientProps) {
                     handleCanvasStickerPositionUpdate(sticker.id, event);
                   }}
                 >
-                  <Box
-                    as="img"
+                  <Image
                     src={sticker.sticker.imageUrl}
                     alt={sticker.sticker.name}
                     width="100%"

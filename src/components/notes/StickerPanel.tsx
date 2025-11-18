@@ -57,7 +57,7 @@ export function StickerPanel({
             variant="ghost"
             colorScheme="gray"
             onClick={onClearSelection}
-            isDisabled={!selectedStickerId}
+            disabled={!selectedStickerId}
           >
             選択解除
           </Button>

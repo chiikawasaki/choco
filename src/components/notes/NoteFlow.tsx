@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import {
   ReactFlow,
-  type ReactFlowInstance,
   Node,
   Edge,
   Connection,
@@ -21,6 +20,7 @@ import {
   MiniMap,
   Viewport,
 } from "reactflow";
+import type { ReactFlowInstance, OnMove } from "reactflow";
 import "reactflow/dist/style.css";
 import { Note, getNoteRelationships } from "@/lib/notes";
 import NoteNode from "./NoteNode";
@@ -266,8 +266,8 @@ export default function NoteFlow({
     [onPaneClick]
   );
 
-  const handleMove = useCallback(
-    (_: React.MouseEvent | null, viewport: Viewport) => {
+  const handleMove = useCallback<OnMove>(
+    (_event, viewport) => {
       onViewportChange?.(viewport);
     },
     [onViewportChange]

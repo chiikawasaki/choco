@@ -57,14 +57,11 @@ async function getAuthenticatedContext() {
   return { user, supabase, error: null };
 }
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  const { id } = params;
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const { user, error } = await getAuthenticatedContext();
   if (!user) {
     return error!;
@@ -139,8 +136,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-  const { id } = params;
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const { user, error } = await getAuthenticatedContext();
   if (!user) {
     return error!;
