@@ -2,8 +2,9 @@
 
 import { memo } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
-import { Box, Text, VStack } from "@chakra-ui/react";
+import { Box, Text, VStack, Badge, Flex, Button } from "@chakra-ui/react";
 import { Note } from "@/lib/notes";
+import { Columns } from "lucide-react";
 
 interface NoteNodeData {
   note: Note;
@@ -25,6 +26,35 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
       maxW="300px"
       position="relative"
     >
+      <Box
+        position="fixed"
+        bottom="10px"
+        left="10px"
+        display="flex"
+        gap="8px"
+        zIndex={10}
+      >
+        <Badge
+          color="white"
+          backgroundColor="pink.500"
+          borderRadius="full"
+          px="3"
+          py="1"
+        >
+          開発
+        </Badge>
+
+        <Badge
+          color="white"
+          backgroundColor="blue.600"
+          borderRadius="full"
+          px="3"
+          py="1"
+        >
+          研究
+        </Badge>
+      </Box>
+
       {/* 入力ハンドル（左側） */}
       <Handle
         type="target"
