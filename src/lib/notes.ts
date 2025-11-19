@@ -1,3 +1,15 @@
+interface NoteResponse {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  positionX?: number;
+  positionY?: number;
+  zIndex?: number;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -21,6 +33,18 @@ export interface UpdateNotePositionData {
   zIndex: number;
 }
 
+const mapNote = (raw: NoteResponse): Note => ({
+  id: raw.id,
+  title: raw.title,
+  content: raw.content,
+  createdAt: new Date(raw.createdAt),
+  updatedAt: new Date(raw.updatedAt),
+  userId: raw.userId,
+  positionX: raw.positionX ?? 0,
+  positionY: raw.positionY ?? 0,
+  zIndex: raw.zIndex ?? 0,
+});
+
 // メモを作成
 export async function createNote(data: CreateNoteData): Promise<Note> {
   try {
@@ -37,8 +61,8 @@ export async function createNote(data: CreateNoteData): Promise<Note> {
       throw new Error(errorData.error || "メモの作成に失敗しました");
     }
 
-    const result = await response.json();
-    return result.note;
+    const result = (await response.json()) as { note: NoteResponse };
+    return mapNote(result.note);
   } catch (error) {
     console.error("createNote error:", error);
     throw error;
@@ -60,8 +84,8 @@ export async function getUserNotes(): Promise<Note[]> {
       throw new Error(errorData.error || "メモの取得に失敗しました");
     }
 
-    const result = await response.json();
-    return result.notes;
+    const result = (await response.json()) as { notes: NoteResponse[] };
+    return (result.notes ?? []).map(mapNote);
   } catch (error) {
     console.error("getUserNotes error:", error);
     throw error;
@@ -87,8 +111,8 @@ export async function updateNote(
       throw new Error(errorData.error || "メモの更新に失敗しました");
     }
 
-    const result = await response.json();
-    return result.note;
+    const result = (await response.json()) as { note: NoteResponse };
+    return mapNote(result.note);
   } catch (error) {
     console.error("updateNote error:", error);
     throw error;

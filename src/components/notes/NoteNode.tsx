@@ -25,14 +25,12 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
       maxW="300px"
       position="relative"
     >
-      {/* 入力ハンドル（左側） */}
       <Handle
         type="target"
         position={Position.Left}
         style={{ background: "#4338CA", width: "12px", height: "12px" }}
       />
 
-      {/* ノードの内容 */}
       <VStack align="stretch" gap={2}>
         <Text
           fontSize="lg"
@@ -63,7 +61,6 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
         </Text>
       </VStack>
 
-      {/* 出力ハンドル（右側） */}
       <Handle
         type="source"
         position={Position.Right}

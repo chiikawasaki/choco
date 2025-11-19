@@ -40,3 +40,33 @@ model NoteRelationship {
   @@unique([sourceNoteId, targetNoteId])
   @@map("note_relationships")
 }
+
+model Sticker {
+  id        String   @id @default(cuid())
+  name      String
+  imageUrl  String
+  storagePath String
+  userId    String
+  createdAt DateTime @default(now())
+
+  canvasStickers CanvasSticker[]
+
+  @@map("stickers")
+}
+
+model CanvasSticker {
+  id        String   @id @default(cuid())
+  userId    String
+  stickerId String
+  positionX Float
+  positionY Float
+  width     Float    @default(90)
+  height    Float    @default(90)
+  rotation  Float    @default(0)
+  zIndex    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  sticker Sticker @relation(fields: [stickerId], references: [id], onDelete: Cascade)
+
+  @@map("canvas_stickers")
+}
