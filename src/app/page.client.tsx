@@ -149,7 +149,15 @@ export default function HomeClient({ user }: HomeClientProps) {
       onMouseLeave={handleMouseLeave}
       style={{ height: "100vh", overflow: "hidden", position: "relative" }}
     >
-      <Box position="fixed" top="0" left="0" right="0" zIndex="1000" p={2}>
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        zIndex="1000"
+        p={2}
+        bg="#FFDFE4"
+      >
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
             <Sidebar ref={sidebarRef} />
