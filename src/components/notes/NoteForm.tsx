@@ -122,10 +122,12 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
               <Input
                 placeholder="メモのタイトルを入力"
                 fontSize="lg"
+                bg="#FEFDF9"
                 border="none"
                 boxShadow="none"
                 outline="none"
                 _focus={{ boxShadow: "none" }}
+                borderRadius="30px"
                 {...register("title", {
                   required: "タイトルは必須です",
                   maxLength: {
@@ -144,11 +146,14 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
             <Field.Root invalid={!!errors.content} mb={6}>
               <Textarea
                 placeholder="メモの内容を入力"
+                pt={4}
                 rows={5}
+                bg="#FEFDF9"
                 border="none"
                 boxShadow="none"
                 outline="none"
                 _focus={{ boxShadow: "none" }}
+                borderRadius="30px"
                 {...register("content", {
                   required: "内容は必須です",
                   maxLength: {
