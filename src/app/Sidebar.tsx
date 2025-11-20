@@ -15,6 +15,7 @@ import {
 import { AlignJustify, Ellipsis, Trash2 } from "lucide-react";
 import { getUserNotes, deleteNote } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
+import Searchbar from "./Searchbar";
 
 interface Note {
   id: string;
@@ -32,7 +33,7 @@ export interface SidebarRef {
 const Sidebar = forwardRef<SidebarRef>((props, ref) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // メモ一覧を取得
   const fetchNotes = async () => {
@@ -69,9 +70,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
       });
       // 一覧を再取得
       fetchNotes();
-      if (selectedNote?.id === id) {
-        setSelectedNote(null);
-      }
     } catch (error) {
       toaster.create({
         title: `エラー: ${
@@ -87,60 +85,121 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
     fetchNotes();
   }, []);
 
+  // 検索でフィルタリング
+  const filteredNotes = notes.filter((note) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      note.title.toLowerCase().includes(query) ||
+      note.content.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <Drawer.Root placement={"start"}>
       <Drawer.Trigger asChild>
-        <AlignJustify size={25} style={{ cursor: "pointer" }} />
+        <AlignJustify size={25} style={{ cursor: "pointer" }} color="white" />
       </Drawer.Trigger>
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
-          <Drawer.Content css={{ backgroundColor: "#ecf9ff", width: "400px" }}>
-            <Box p={4}>
-              <HStack justify="space-between" mb={4}>
-                <Text fontSize="xl" fontWeight="bold" color="#4338CA">
-                  メモ一覧
-                </Text>
+          <Drawer.Content css={{ backgroundColor: "#FEFDF9", width: "400px" }}>
+            <Box
+              position="absolute"
+              top="0"
+              left="0"
+              zIndex="1"
+              bg="#7B544F"
+              height="110px"
+              width="106px"
+              borderRadius="50px"
+            />
+            <Box
+              position="absolute"
+              top="0"
+              left="106px"
+              zIndex="1"
+              bg="#7B544F"
+              height="110px"
+              width="106px"
+              borderRadius="50px"
+            />
+            <Box
+              position="absolute"
+              top="0"
+              left="212px"
+              zIndex="1"
+              bg="#7B544F"
+              height="110px"
+              width="108px"
+              borderRadius="50px"
+            />
+            <Box
+              bg="#7B544F"
+              p={4}
+              borderBottom="1px"
+              borderColor="gray.300"
+              zIndex="1000"
+            >
+              <HStack justify="space-between" align="center" gap={3}>
+                <Box flex="1">
+                  <Searchbar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="メモを検索..."
+                    width="250px"
+                  />
+                </Box>
                 <Drawer.CloseTrigger asChild>
-                  <CloseButton size="sm" />
+                  <CloseButton
+                    size="sm"
+                    color="white"
+                    _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                    mt={1}
+                  />
                 </Drawer.CloseTrigger>
               </HStack>
+            </Box>
 
-              <Box borderBottom="1px" borderColor="gray.300" mb={4} />
+            <Box p={4}>
+              <Text fontSize="lg" fontWeight="bold" color="#7B544F" mt={10}>
+                メモ一覧
+              </Text>
 
               {loading ? (
                 <Box display="flex" justifyContent="center" p={8}>
                   <Spinner size="lg" color="#4338CA" />
                 </Box>
-              ) : notes.length === 0 ? (
+              ) : filteredNotes.length === 0 ? (
                 <Box textAlign="center" p={8}>
                   <Text color="gray.500" fontSize="lg">
-                    まだメモがありません
+                    {searchQuery
+                      ? "検索結果がありません"
+                      : "まだメモがありません"}
                   </Text>
                   <Text color="gray.400" fontSize="sm" mt={2}>
-                    新しいメモを作成してみましょう！
+                    {searchQuery
+                      ? "別のキーワードで検索してみてください"
+                      : "新しいメモを作成してみましょう！"}
                   </Text>
                 </Box>
               ) : (
-                <VStack gap={3} align="stretch" maxH="70vh" overflowY="auto">
-                  {notes.map((note) => (
+                <VStack
+                  gap={3}
+                  align="stretch"
+                  maxH="70vh"
+                  overflowY="auto"
+                  mt={4}
+                >
+                  {filteredNotes.map((note) => (
                     <Box
                       key={note.id}
                       pb={3}
                       px={3}
-                      bg="white"
+                      bg="#FFDFE4"
                       borderRadius="md"
                       shadow="sm"
                       border="1px"
-                      borderColor={
-                        selectedNote?.id === note.id ? "#4338CA" : "gray.200"
-                      }
-                      cursor="pointer"
-                      _hover={{
-                        borderColor: "#4338CA",
-                        shadow: "md",
-                      }}
-                      onClick={() => setSelectedNote(note)}
+                      borderColor="gray.200"
                     >
                       <Box
                         position="relative"
@@ -216,40 +275,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                     </Box>
                   ))}
                 </VStack>
-              )}
-
-              {selectedNote && (
-                <Box mt={4} p={4} bg="white" borderRadius="md" shadow="md">
-                  <Text fontSize="lg" fontWeight="bold" mb={2} color="#4338CA">
-                    {selectedNote.title}
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    mb={3}
-                    whiteSpace="pre-wrap"
-                  >
-                    {selectedNote.content}
-                  </Text>
-                  <HStack
-                    justify="space-between"
-                    fontSize="xs"
-                    color="gray.400"
-                  >
-                    <Text>
-                      作成日:{" "}
-                      {new Date(selectedNote.createdAt).toLocaleDateString(
-                        "ja-JP"
-                      )}
-                    </Text>
-                    <Text>
-                      更新日:{" "}
-                      {new Date(selectedNote.updatedAt).toLocaleDateString(
-                        "ja-JP"
-                      )}
-                    </Text>
-                  </HStack>
-                </Box>
               )}
             </Box>
           </Drawer.Content>

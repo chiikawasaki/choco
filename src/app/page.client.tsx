@@ -10,7 +10,6 @@ import {
 } from "@chakra-ui/react";
 import { Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
-import Searchbar from "./Searchbar";
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -294,24 +293,103 @@ export default function HomeClient({ user }: HomeClientProps) {
   }, [user]);
 
   return (
-    <Box style={{ height: "100vh", overflow: "hidden", position: "relative" }}>
-      <Box position="fixed" top="0" left="0" right="0" zIndex="1000" p={2} bg="#FFDFE4">
+    <Box
+      style={{ height: "100vh", overflow: "hidden", position: "relative" }}
+      bg="#FEFDF9"
+    >
+      <Box
+        position="absolute"
+        top="0"
+        left="0"
+        zIndex="1"
+        p={2}
+        bg="#FFDFE4"
+        width="50px"
+        height="125px"
+        borderRadius="30px"
+      />
+      <Box
+        position="absolute"
+        top="0"
+        left="50px"
+        zIndex="1"
+        p={2}
+        bg="#FFDFE4"
+        width="50px"
+        height="75px"
+        borderRadius="30px"
+      />
+      <Box
+        position="absolute"
+        top="0"
+        right="0px"
+        zIndex="1"
+        p={2}
+        bg="#FFDFE4"
+        width="100px"
+        height="175px"
+        borderRadius="50px"
+      />
+      <Box
+        position="absolute"
+        top="0"
+        right="100px"
+        zIndex="1"
+        p={2}
+        bg="#FFDFE4"
+        width="70px"
+        height="100px"
+        borderRadius="50px"
+      />
+      <Box
+        position="fixed"
+        top="0"
+        left="0"
+        right="0"
+        zIndex="1000"
+        p={2}
+        bg="#FFDFE4"
+      >
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
             <Sidebar ref={sidebarRef} />
           </Box>
-          <Box display="flex" gap={4}>
-            <Searchbar />
-            <Button size="sm" variant="outline" onClick={handleSignOut}>
+          <Box display="flex" gap={3} alignItems="center">
+            <Button
+              size="sm"
+              bg="white"
+              color="#8B6F47"
+              fontWeight="bold"
+              borderRadius="20px"
+              padding="12px 20px"
+              border="2px solid"
+              borderColor="#A67B5B"
+              _hover={{
+                bg: "#FFF8DC",
+                borderColor: "#8B6F47",
+                transform: "translateY(-2px)",
+                shadow: "md",
+              }}
+              transition="all 0.2s"
+              onClick={handleSignOut}
+            >
               ログアウト
             </Button>
             <Link href="/post">
               <Button
                 size="sm"
-                bg="#4338CA"
+                bg="#A67B5B"
                 color="white"
+                fontWeight="bold"
                 borderRadius="30px"
                 padding="15px 25px"
+                shadow="md"
+                _hover={{
+                  bg: "#8B6F47",
+                  transform: "translateY(-2px)",
+                  shadow: "lg",
+                }}
+                transition="all 0.2s"
               >
                 新規作成
               </Button>
@@ -322,10 +400,11 @@ export default function HomeClient({ user }: HomeClientProps) {
       <Box position="fixed" bottom="20px" right="20px" zIndex="999">
         <Link href="/post">
           <Button
-            bg="#4338CA"
+            bg="#FFBBC6"
+            shadow="md"
             css={{
-              position: "fixed",
-              bottom: "5%",
+              position: "absolute",
+              bottom: "20px",
               right: "2%",
               width: "70px",
               height: "70px",
