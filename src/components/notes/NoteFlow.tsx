@@ -91,10 +91,35 @@ export default function NoteFlow({
     return nodes;
   }, [notes, onNoteUpdate]);
 
-  // 初期化時にノードを設定
+  // 初期化時にノードを設定（ノードの追加・削除のみ反映）
   useEffect(() => {
-    setNodes(noteNodes);
-  }, [noteNodes, setNodes, notes]);
+    setNodes((currentNodes) => {
+      // 既存のノードIDのセット
+      const currentNodeIds = new Set(currentNodes.map((n) => n.id));
+      const newNodeIds = new Set(noteNodes.map((n) => n.id));
+
+      // 新規ノードがある場合、または削除されたノードがある場合のみ更新
+      const hasNewNodes = noteNodes.some((n) => !currentNodeIds.has(n.id));
+      const hasDeletedNodes = currentNodes.some((n) => !newNodeIds.has(n.id));
+
+      if (hasNewNodes || hasDeletedNodes || currentNodes.length === 0) {
+        // 新規ノードの追加または削除があった場合
+        // 既存ノードの位置は保持し、新規ノードのみ追加
+        const existingNodesMap = new Map(
+          currentNodes.map((n) => [n.id, n.position])
+        );
+
+        return noteNodes.map((newNode) => ({
+          ...newNode,
+          // 既存のノードの場合は現在の位置を保持
+          position: existingNodesMap.get(newNode.id) || newNode.position,
+        }));
+      }
+
+      // 変更がない場合は現在のノードをそのまま返す
+      return currentNodes;
+    });
+  }, [noteNodes, setNodes]);
 
   // 既存の関係性を読み込む
   useEffect(() => {
