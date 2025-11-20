@@ -63,6 +63,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 既存の関係性をチェック
+    const existingRelationship = await prisma.noteRelationship.findFirst({
+      where: {
+        sourceNoteId,
+        targetNoteId,
+      },
+    });
+
+    // 既に存在する場合は、既存の関係性を返す
+    if (existingRelationship) {
+      console.log("Note relationship already exists:", existingRelationship.id);
+      return NextResponse.json({
+        success: true,
+        relationship: existingRelationship,
+        message: "この関係性は既に存在しています",
+      });
+    }
+
     // 関係性を作成
     const relationship = await prisma.noteRelationship.create({
       data: {
@@ -81,8 +99,16 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Note relationship creation error:", error);
+
+    // エラーの詳細情報を取得
+    const errorMessage =
+      error instanceof Error ? error.message : "関係性の作成に失敗しました";
+
     return NextResponse.json(
-      { error: "関係性の作成に失敗しました" },
+      {
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : String(error),
+      },
       { status: 500 }
     );
   }
@@ -150,8 +176,16 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Note relationships fetch error:", error);
+
+    // エラーの詳細情報を取得
+    const errorMessage =
+      error instanceof Error ? error.message : "関係性の取得に失敗しました";
+
     return NextResponse.json(
-      { error: "関係性の取得に失敗しました" },
+      {
+        error: errorMessage,
+        details: error instanceof Error ? error.stack : String(error),
+      },
       { status: 500 }
     );
   }

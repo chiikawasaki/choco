@@ -2,6 +2,7 @@ interface NoteResponse {
   id: string;
   title: string;
   content: string;
+  color?: string;
   createdAt: string;
   updatedAt: string;
   userId: string;
@@ -14,6 +15,7 @@ export interface Note {
   id: string;
   title: string;
   content: string;
+  color: string;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
@@ -25,6 +27,7 @@ export interface Note {
 export interface CreateNoteData {
   title: string;
   content: string;
+  color?: string;
 }
 
 export interface UpdateNotePositionData {
@@ -37,6 +40,7 @@ const mapNote = (raw: NoteResponse): Note => ({
   id: raw.id,
   title: raw.title,
   content: raw.content,
+  color: raw.color ?? "#FEBFC8",
   createdAt: new Date(raw.createdAt),
   updatedAt: new Date(raw.updatedAt),
   userId: raw.userId,
@@ -174,7 +178,15 @@ export async function createNoteRelationship(
     console.log("APIレスポンス:", response.status, response.statusText);
 
     if (!response.ok) {
-      const errorData = await response.json();
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        console.error("JSONパースエラー:", e);
+        throw new Error(
+          `関係性の作成に失敗しました (${response.status}: ${response.statusText})`
+        );
+      }
       console.error("APIエラーレスポンス:", errorData);
       throw new Error(
         errorData.error || `関係性の作成に失敗しました (${response.status})`
