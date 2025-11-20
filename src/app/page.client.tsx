@@ -10,7 +10,6 @@ import {
 } from "@chakra-ui/react";
 import { Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
-import Searchbar from "./Searchbar";
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -356,7 +355,6 @@ export default function HomeClient({ user }: HomeClientProps) {
             <Sidebar ref={sidebarRef} />
           </Box>
           <Box display="flex" gap={3} alignItems="center">
-            <Searchbar />
             <Button
               size="sm"
               bg="white"
