@@ -16,7 +16,7 @@ function NoteNode({ data }: NodeProps<NoteNodeData>) {
   return (
     <Box
       p={3}
-      bg="pink.100"
+      bg={note.color || "#F1DDFF"}
       borderRadius="lg"
       shadow="md"
       border="2px"

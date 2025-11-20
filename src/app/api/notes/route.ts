@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
     console.log("Authenticated user:", user.id);
 
     // リクエストボディを取得
-    const { title, content } = await request.json();
+    const { title, content, color } = await request.json();
 
     if (!title || !content) {
       return NextResponse.json(
@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         content,
+        color: color || "#FEBFC8",
         userId: user.id,
       },
     });

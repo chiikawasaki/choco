@@ -19,6 +19,7 @@ interface NoteFormProps {
   onNoteCreated?: () => void;
   isVisible?: boolean;
   onToggleVisibility?: (visible: boolean) => void;
+  backgroundColor?: string;
 }
 
 export interface NoteFormRef {
@@ -31,10 +32,14 @@ export interface NoteFormRef {
 
 const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
   (
-    { onNoteCreated, isVisible: externalIsVisible, onToggleVisibility },
+    {
+      onNoteCreated,
+      isVisible: externalIsVisible,
+      onToggleVisibility,
+      backgroundColor = "#FEBFC8",
+    },
     ref
   ) => {
-    const [isLoading, setIsLoading] = useState(false);
     const [internalIsVisible, setInternalIsVisible] = useState(false);
 
     // 外部制御と内部制御の両方に対応
@@ -82,10 +87,11 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
     }));
 
     const onSubmit = async (data: CreateNoteData) => {
-      setIsLoading(true);
-
       try {
-        await createNote(data);
+        await createNote({
+          ...data,
+          color: backgroundColor,
+        });
 
         // フォームをリセット
         reset();
@@ -105,8 +111,6 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
           type: "error",
         });
         return false;
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -147,7 +151,9 @@ const NoteForm = forwardRef<NoteFormRef, NoteFormProps>(
               <Textarea
                 placeholder="メモの内容を入力"
                 pt={4}
+                p={5}
                 rows={5}
+                height="60vh"
                 bg="#FEFDF9"
                 border="none"
                 boxShadow="none"

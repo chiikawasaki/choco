@@ -16,7 +16,7 @@ const PostPage = () => {
   const { user, loading } = useAuth();
   const noteFormRef = useRef<NoteFormRef>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [backgroundColor, setBackgroundColor] = useState("#F1DDFF");
+  const [backgroundColor, setBackgroundColor] = useState("#FEBFC8");
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const router = useRouter();
 
@@ -265,7 +265,7 @@ const PostPage = () => {
 
       {/* メインコンテンツエリア */}
       <Box mt={20} position="relative" zIndex="10">
-        <NoteForm ref={noteFormRef} />
+        <NoteForm ref={noteFormRef} backgroundColor={backgroundColor} />
       </Box>
     </Box>
   );
