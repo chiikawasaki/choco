@@ -33,7 +33,6 @@ export interface SidebarRef {
 const Sidebar = forwardRef<SidebarRef>((props, ref) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // メモ一覧を取得
@@ -71,9 +70,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
       });
       // 一覧を再取得
       fetchNotes();
-      if (selectedNote?.id === id) {
-        setSelectedNote(null);
-      }
     } catch (error) {
       toaster.create({
         title: `エラー: ${
@@ -184,7 +180,13 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                   </Text>
                 </Box>
               ) : (
-                <VStack gap={3} align="stretch" maxH="70vh" overflowY="auto" mt={8}>
+                <VStack
+                  gap={3}
+                  align="stretch"
+                  maxH="70vh"
+                  overflowY="auto"
+                  mt={8}
+                >
                   {filteredNotes.map((note) => (
                     <Box
                       key={note.id}
@@ -194,15 +196,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                       borderRadius="md"
                       shadow="sm"
                       border="1px"
-                      borderColor={
-                        selectedNote?.id === note.id ? "#4338CA" : "gray.200"
-                      }
-                      cursor="pointer"
-                      _hover={{
-                        borderColor: "#4338CA",
-                        shadow: "md",
-                      }}
-                      onClick={() => setSelectedNote(note)}
+                      borderColor="gray.200"
                     >
                       <Box
                         position="relative"
@@ -278,40 +272,6 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                     </Box>
                   ))}
                 </VStack>
-              )}
-
-              {selectedNote && (
-                <Box mt={4} p={4} bg="#FFDFE4" borderRadius="md" shadow="md">
-                  <Text fontSize="lg" fontWeight="bold" mb={2} color="#4338CA">
-                    {selectedNote.title}
-                  </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.600"
-                    mb={3}
-                    whiteSpace="pre-wrap"
-                  >
-                    {selectedNote.content}
-                  </Text>
-                  <HStack
-                    justify="space-between"
-                    fontSize="xs"
-                    color="gray.400"
-                  >
-                    <Text>
-                      作成日:{" "}
-                      {new Date(selectedNote.createdAt).toLocaleDateString(
-                        "ja-JP"
-                      )}
-                    </Text>
-                    <Text>
-                      更新日:{" "}
-                      {new Date(selectedNote.updatedAt).toLocaleDateString(
-                        "ja-JP"
-                      )}
-                    </Text>
-                  </HStack>
-                </Box>
               )}
             </Box>
           </Drawer.Content>
