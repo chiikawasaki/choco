@@ -45,6 +45,10 @@ interface NoteFlowProps {
   onConnectionDelete?: (edgeId: string) => void;
   onPaneClick?: (position: { x: number; y: number }) => void;
   onViewportChange?: (viewport: Viewport) => void;
+  onStickerDrop?: (
+    stickerId: string,
+    position: { x: number; y: number }
+  ) => void;
 }
 
 export default function NoteFlow({
@@ -54,6 +58,7 @@ export default function NoteFlow({
   onConnectionDelete,
   onPaneClick,
   onViewportChange,
+  onStickerDrop,
 }: NoteFlowProps) {
   // ノードとエッジの状態管理
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -307,10 +312,37 @@ export default function NoteFlow({
     [onViewportChange]
   );
 
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "copy";
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const stickerId = event.dataTransfer.getData("stickerId");
+      if (!stickerId || !reactFlowInstanceRef.current || !wrapperRef.current) {
+        return;
+      }
+
+      const bounds = wrapperRef.current.getBoundingClientRect();
+      const position = reactFlowInstanceRef.current.project({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+
+      onStickerDrop?.(stickerId, position);
+    },
+    [onStickerDrop]
+  );
+
   return (
     <div
       ref={wrapperRef}
       style={{ width: "100%", height: "100%", position: "relative" }}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
       <ReactFlow
         onInit={handleInit}
