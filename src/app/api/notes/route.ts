@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { Note } from "@/lib/notes";
+import type { Note as PrismaNote } from "@prisma/client";
+
+const serializeNote = (note: PrismaNote) => ({
+  ...note,
+  createdAt: note.createdAt.toISOString(),
+  updatedAt: note.updatedAt.toISOString(),
+});
 
 // メモを作成
 export async function POST(request: NextRequest) {
@@ -63,11 +69,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      note: {
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      },
+      note: serializeNote(note),
     });
   } catch (error) {
     console.error("Note creation error:", error);
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
 }
 
 // ユーザーのメモ一覧を取得
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Supabaseクライアントを作成（認証用）
     const cookieStore = await cookies();
@@ -128,11 +130,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      notes: notes.map((note: Note) => ({
-        ...note,
-        createdAt: note.createdAt.toISOString(),
-        updatedAt: note.updatedAt.toISOString(),
-      })),
+      notes: notes.map(serializeNote),
     });
   } catch (error) {
     console.error("Notes fetch error:", error);

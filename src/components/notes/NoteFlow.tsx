@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ReactFlow,
   Node,
@@ -12,7 +18,9 @@ import {
   Controls,
   Background,
   MiniMap,
+  Viewport,
 } from "reactflow";
+import type { ReactFlowInstance, OnMove } from "reactflow";
 import "reactflow/dist/style.css";
 import { Note, getNoteRelationships } from "@/lib/notes";
 import NoteNode from "./NoteNode";
@@ -35,18 +43,28 @@ interface NoteFlowProps {
   onNoteUpdate?: (noteId: string, data: Partial<Note>) => void;
   onConnectionCreate?: (sourceId: string, targetId: string) => void;
   onConnectionDelete?: (edgeId: string) => void;
+  onPaneClick?: (position: { x: number; y: number }) => void;
+  onViewportChange?: (viewport: Viewport) => void;
 }
 
 export default function NoteFlow({
   notes,
   onNoteUpdate,
+  onConnectionCreate,
   onConnectionDelete,
+  onPaneClick,
+  onViewportChange,
 }: NoteFlowProps) {
   // ノードとエッジの状態管理
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const connectionCreateRef = useRef(onConnectionCreate);
+  const reactFlowInstanceRef = useRef<ReactFlowInstance | null>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  connectionCreateRef.current = onConnectionCreate;
 
   // メモをノードに変換
   const noteNodes: Node[] = useMemo(() => {
@@ -143,6 +161,7 @@ export default function NoteFlow({
       setEdges((eds) => addEdge(newEdge, eds));
 
       // データベースに保存
+      connectionCreateRef.current?.(params.source!, params.target!);
       createNoteRelationship(params.source!, params.target!)
         .then(() => {
           console.log("関係性がデータベースに保存されました");
@@ -153,7 +172,7 @@ export default function NoteFlow({
           setEdges((eds) => eds.filter((edge) => edge.id !== newEdge.id));
         });
     },
-    [edges, createNoteRelationship]
+    [edges, setEdges]
   );
 
   // エッジの選択状態変更を検知
@@ -227,9 +246,48 @@ export default function NoteFlow({
     showDeleteConfirm,
   });
 
+  const handlePaneClickInternal = useCallback(
+    (event: React.MouseEvent) => {
+      if (
+        !onPaneClick ||
+        !wrapperRef.current ||
+        !reactFlowInstanceRef.current
+      ) {
+        return;
+      }
+
+      const bounds = wrapperRef.current.getBoundingClientRect();
+      const position = reactFlowInstanceRef.current.project({
+        x: event.clientX - bounds.left,
+        y: event.clientY - bounds.top,
+      });
+      onPaneClick(position);
+    },
+    [onPaneClick]
+  );
+
+  const handleMove = useCallback<OnMove>(
+    (_event, viewport) => {
+      onViewportChange?.(viewport);
+    },
+    [onViewportChange]
+  );
+
+  const handleInit = useCallback(
+    (instance: ReactFlowInstance) => {
+      reactFlowInstanceRef.current = instance;
+      onViewportChange?.(instance.getViewport());
+    },
+    [onViewportChange]
+  );
+
   return (
-    <div style={{ width: "100%", height: "100%", position: "relative" }}>
+    <div
+      ref={wrapperRef}
+      style={{ width: "100%", height: "100%", position: "relative" }}
+    >
       <ReactFlow
+        onInit={handleInit}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
@@ -238,6 +296,8 @@ export default function NoteFlow({
         onEdgeClick={onEdgeClick}
         onNodeDragStop={onNodeDragStop}
         onSelectionChange={onSelectionChange}
+        onPaneClick={handlePaneClickInternal}
+        onMove={handleMove}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

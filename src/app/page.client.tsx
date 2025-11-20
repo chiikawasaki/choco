@@ -1,12 +1,20 @@
 "use client";
 
-import { Button, Box, Spinner, Text } from "@chakra-ui/react";
+import {
+  Button,
+  Box,
+  Spinner,
+  Text,
+  CloseButton,
+  Image,
+} from "@chakra-ui/react";
 import { Plus } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Searchbar from "./Searchbar";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
+  Note,
   getUserNotes,
   updateNotePosition,
   createNoteRelationship,
@@ -15,18 +23,21 @@ import {
 import NoteFlow from "@/components/notes/NoteFlow";
 import { User } from "@supabase/supabase-js";
 import { getSupabaseClient } from "@/lib/supabase-client";
+import {
+  Sticker,
+  CanvasSticker,
+  getStickers,
+  getCanvasStickers,
+  createCanvasSticker,
+  updateCanvasSticker,
+  deleteCanvasSticker,
+} from "@/lib/stickers";
+import { StickerPanel } from "@/components/notes/StickerPanel";
+import { toaster } from "@/components/ui/toaster";
+import { motion } from "framer-motion";
+import type { Viewport } from "reactflow";
 
-type Note = {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  userId: string;
-  positionX: number;
-  positionY: number;
-  zIndex: number;
-};
+const MotionDiv = motion.div;
 
 type positionData = {
   positionX: number;
@@ -41,10 +52,21 @@ interface HomeClientProps {
 export default function HomeClient({ user }: HomeClientProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
-  const [draggedNote, setDraggedNote] = useState<string | null>(null);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [stickers, setStickers] = useState<Sticker[]>([]);
+  const [canvasStickers, setCanvasStickers] = useState<CanvasSticker[]>([]);
+  const [selectedStickerId, setSelectedStickerId] = useState<string | null>(
+    null
+  );
+  const [activeStickerId, setActiveStickerId] = useState<string | null>(null);
+  const [viewport, setViewport] = useState<Viewport>({
+    x: 0,
+    y: 0,
+    zoom: 1,
+  });
   const sidebarRef = useRef<{ refreshNotes: () => void }>(null);
+  const canvasLayerRef = useRef<HTMLDivElement | null>(null);
   const supabase = getSupabaseClient();
+  const DEFAULT_STICKER_SIZE = 90;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -66,50 +88,137 @@ export default function HomeClient({ user }: HomeClientProps) {
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!draggedNote) return;
-
-    const newX = e.clientX - dragOffset.x;
-    const newY = e.clientY - dragOffset.y;
-
-    setNotes((prev) =>
-      prev.map((note) =>
-        note.id === draggedNote
-          ? {
-              ...note,
-              positionX: newX,
-              positionY: newY,
-            }
-          : note
-      )
-    );
+  const handleStickerSelect = (stickerId: string) => {
+    setSelectedStickerId((prev) => (prev === stickerId ? null : stickerId));
   };
 
-  const handleMouseUp = () => {
-    if (draggedNote) {
-      const finalNote = notes.find((note) => note.id === draggedNote);
-      if (finalNote) {
-        updateNotePosition(finalNote.id, {
-          positionX: finalNote.positionX,
-          positionY: finalNote.positionY,
-          zIndex: finalNote.zIndex,
-        }).catch((error) => {
-          console.error("位置情報の保存に失敗:", error);
-        });
+  const handleStickerClear = () => {
+    setSelectedStickerId(null);
+  };
+
+  const handleCanvasStickerAdd = useCallback(
+    async (position: { x: number; y: number }) => {
+      if (!selectedStickerId) {
+        setActiveStickerId(null);
+        return;
       }
 
-      setDraggedNote(null);
-      setDragOffset({ x: 0, y: 0 });
-    }
-  };
+      const positionX = position.x - DEFAULT_STICKER_SIZE / 2;
+      const positionY = position.y - DEFAULT_STICKER_SIZE / 2;
+      const nextZIndex =
+        canvasStickers.reduce(
+          (max, sticker) => Math.max(max, sticker.zIndex ?? 0),
+          0
+        ) + 1;
 
-  const handleMouseLeave = () => {
-    if (draggedNote) {
-      console.log("マウスがウィンドウ外に出ました");
-      setDraggedNote(null);
-      setDragOffset({ x: 0, y: 0 });
-    }
-  };
+      try {
+        const created = await createCanvasSticker({
+          stickerId: selectedStickerId,
+          positionX,
+          positionY,
+          width: DEFAULT_STICKER_SIZE,
+          height: DEFAULT_STICKER_SIZE,
+          rotation: 0,
+          zIndex: nextZIndex,
+        });
+
+        setCanvasStickers((prev) => [...prev, created]);
+        setSelectedStickerId(null);
+        setActiveStickerId(null);
+        toaster.create({
+          title: "ステッカーを貼り付けました",
+          type: "success",
+        });
+      } catch (error) {
+        console.error("キャンバスステッカー追加エラー:", error);
+        toaster.create({
+          title: `ステッカーの貼り付けに失敗しました: ${
+            error instanceof Error ? error.message : "不明なエラー"
+          }`,
+          type: "error",
+        });
+      }
+    },
+    [canvasStickers, selectedStickerId]
+  );
+
+  const handleCanvasStickerPositionUpdate = useCallback(
+    async (
+      stickerId: string,
+      event: MouseEvent | TouchEvent | PointerEvent
+    ) => {
+      const element = event.currentTarget as HTMLElement | null;
+      if (!element) return;
+
+      const stickerRect = element.getBoundingClientRect();
+      const containerRect = canvasLayerRef.current?.getBoundingClientRect();
+      if (!containerRect) return;
+      const screenX = stickerRect.left - containerRect.left;
+      const screenY = stickerRect.top - containerRect.top;
+      const positionX = (screenX - viewport.x) / viewport.zoom;
+      const positionY = (screenY - viewport.y) / viewport.zoom;
+
+      const previous = canvasStickers.find(
+        (sticker) => sticker.id === stickerId
+      );
+      setCanvasStickers((prev) =>
+        prev.map((sticker) =>
+          sticker.id === stickerId
+            ? { ...sticker, positionX, positionY }
+            : sticker
+        )
+      );
+
+      try {
+        await updateCanvasSticker(stickerId, { positionX, positionY });
+      } catch (error) {
+        console.error("キャンバスステッカー位置更新エラー:", error);
+        if (previous) {
+          setCanvasStickers((prev) =>
+            prev.map((sticker) =>
+              sticker.id === stickerId ? previous : sticker
+            )
+          );
+        }
+        toaster.create({
+          title: `ステッカーの位置更新に失敗しました: ${
+            error instanceof Error ? error.message : "不明なエラー"
+          }`,
+          type: "error",
+        });
+      }
+    },
+    [canvasLayerRef, canvasStickers, viewport]
+  );
+
+  const handleCanvasStickerDelete = useCallback(
+    async (stickerId: string) => {
+      let removedSticker: CanvasSticker | undefined;
+      setCanvasStickers((prev) => {
+        removedSticker = prev.find((sticker) => sticker.id === stickerId);
+        return prev.filter((sticker) => sticker.id !== stickerId);
+      });
+
+      try {
+        await deleteCanvasSticker(stickerId);
+        if (activeStickerId === stickerId) {
+          setActiveStickerId(null);
+        }
+      } catch (error) {
+        console.error("キャンバスステッカー削除エラー:", error);
+        toaster.create({
+          title: `ステッカーの削除に失敗しました: ${
+            error instanceof Error ? error.message : "不明なエラー"
+          }`,
+          type: "error",
+        });
+        if (removedSticker) {
+          setCanvasStickers((prev) => [...prev, removedSticker!]);
+        }
+      }
+    },
+    [activeStickerId]
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -142,22 +251,51 @@ export default function HomeClient({ user }: HomeClientProps) {
     };
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const fetched = await getStickers();
+        if (!cancelled) {
+          setStickers(fetched);
+        }
+      } catch (error) {
+        console.error("ステッカーの取得に失敗:", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const fetched = await getCanvasStickers();
+        if (!cancelled) {
+          setCanvasStickers(fetched);
+        }
+      } catch (error) {
+        console.error("キャンバスステッカーの取得に失敗:", error);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   return (
-    <Box
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-      style={{ height: "100vh", overflow: "hidden", position: "relative" }}
-    >
-      <Box
-        position="fixed"
-        top="0"
-        left="0"
-        right="0"
-        zIndex="1000"
-        p={2}
-        bg="#FFDFE4"
-      >
+    <Box style={{ height: "100vh", overflow: "hidden", position: "relative" }}>
+      <Box position="fixed" top="0" left="0" right="0" zIndex="1000" p={2}       bg="#FFDFE4">
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Box>
             <Sidebar ref={sidebarRef} />
@@ -226,12 +364,14 @@ export default function HomeClient({ user }: HomeClientProps) {
         </Box>
       ) : (
         <Box
+          ref={canvasLayerRef}
           css={{
             position: "absolute",
             top: "0",
             left: "0",
             right: "0",
             bottom: "0",
+            overflow: "hidden",
           }}
         >
           <NoteFlow
@@ -245,9 +385,91 @@ export default function HomeClient({ user }: HomeClientProps) {
             onConnectionDelete={(edgeId) => {
               deleteNoteRelationship(edgeId);
             }}
+            onPaneClick={handleCanvasStickerAdd}
+            onViewportChange={setViewport}
           />
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            right="0"
+            bottom="0"
+            pointerEvents="none"
+            style={{
+              transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+              transformOrigin: "0 0",
+            }}
+          >
+            {canvasStickers.map((sticker) => {
+              return (
+                <MotionDiv
+                  key={sticker.id}
+                  data-canvas-sticker="true"
+                  drag
+                  dragMomentum={false}
+                  dragConstraints={canvasLayerRef}
+                  style={{
+                    position: "absolute",
+                    top: sticker.positionY,
+                    left: sticker.positionX,
+                    width: sticker.width ?? DEFAULT_STICKER_SIZE,
+                    height: sticker.height ?? DEFAULT_STICKER_SIZE,
+                    pointerEvents: "auto",
+                    zIndex: (sticker.zIndex ?? 0) + 200,
+                  }}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    setActiveStickerId(sticker.id);
+                  }}
+                  onDragStart={(event) => {
+                    event.stopPropagation();
+                    setActiveStickerId(sticker.id);
+                  }}
+                  onDragEnd={(event) => {
+                    event.stopPropagation();
+                    handleCanvasStickerPositionUpdate(sticker.id, event);
+                  }}
+                >
+                  <Image
+                    src={sticker.sticker.imageUrl}
+                    alt={sticker.sticker.name}
+                    width="100%"
+                    height="100%"
+                    objectFit="contain"
+                    borderRadius="md"
+                    pointerEvents="none"
+                    style={{
+                      transform: `rotate(${sticker.rotation ?? 0}deg)`,
+                    }}
+                  />
+                  {activeStickerId === sticker.id && (
+                    <CloseButton
+                      size="sm"
+                      color="white"
+                      bg="red.400"
+                      _hover={{ bg: "red.500" }}
+                      position="absolute"
+                      top="-8px"
+                      right="-8px"
+                      borderRadius="full"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleCanvasStickerDelete(sticker.id);
+                      }}
+                    />
+                  )}
+                </MotionDiv>
+              );
+            })}
+          </Box>
         </Box>
       )}
+      <StickerPanel
+        stickers={stickers}
+        selectedStickerId={selectedStickerId}
+        onSelect={handleStickerSelect}
+        onClearSelection={handleStickerClear}
+      />
     </Box>
   );
 }
