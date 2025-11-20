@@ -161,10 +161,11 @@ export default function NoteFlow({
       setEdges((eds) => addEdge(newEdge, eds));
 
       // データベースに保存
-      connectionCreateRef.current?.(params.source!, params.target!);
       createNoteRelationship(params.source!, params.target!)
         .then(() => {
           console.log("関係性がデータベースに保存されました");
+          // 親コンポーネントにも通知
+          connectionCreateRef.current?.(params.source!, params.target!);
         })
         .catch((error) => {
           console.error("関係性の保存に失敗:", error);

@@ -16,7 +16,6 @@ import {
   Note,
   getUserNotes,
   updateNotePosition,
-  createNoteRelationship,
   deleteNoteRelationship,
 } from "@/lib/notes";
 import NoteFlow from "@/components/notes/NoteFlow";
@@ -459,7 +458,7 @@ export default function HomeClient({ user }: HomeClientProps) {
               handleNoteUpdate(noteId, data as positionData);
             }}
             onConnectionCreate={(sourceId, targetId) => {
-              createNoteRelationship(sourceId, targetId);
+              console.log("接続作成通知:", sourceId, targetId);
             }}
             onConnectionDelete={(edgeId) => {
               deleteNoteRelationship(edgeId);
