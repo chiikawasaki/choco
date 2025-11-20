@@ -109,7 +109,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
               left="0"
               zIndex="1"
               bg="#7B544F"
-              height="140px"
+              height="110px"
               width="106px"
               borderRadius="50px"
             />
@@ -119,7 +119,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
               left="106px"
               zIndex="1"
               bg="#7B544F"
-              height="140px"
+              height="110px"
               width="106px"
               borderRadius="50px"
             />
@@ -129,7 +129,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
               left="212px"
               zIndex="1"
               bg="#7B544F"
-              height="140px"
+              height="110px"
               width="108px"
               borderRadius="50px"
             />
@@ -140,28 +140,31 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
               borderColor="gray.300"
               zIndex="1000"
             >
-              <HStack justify="space-between" mb={3}>
+              <HStack justify="space-between" align="center" gap={3}>
+                <Box flex="1">
+                  <Searchbar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="メモを検索..."
+                    width="250px"
+                  />
+                </Box>
                 <Drawer.CloseTrigger asChild>
                   <CloseButton
                     size="sm"
                     color="white"
-                    _hover={{ bg: "transparent", color: "white" }}
+                    _hover={{ bg: "rgba(255, 255, 255, 0.2)" }}
+                    mt={1}
                   />
                 </Drawer.CloseTrigger>
               </HStack>
-
-              {/* 検索バー */}
-              <Box mt={8}>
-                <Searchbar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  placeholder="メモを検索..."
-                  width="270px"
-                />
-              </Box>
             </Box>
 
             <Box p={4}>
+              <Text fontSize="lg" fontWeight="bold" color="#7B544F" mt={10}>
+                メモ一覧
+              </Text>
+
               {loading ? (
                 <Box display="flex" justifyContent="center" p={8}>
                   <Spinner size="lg" color="#4338CA" />
@@ -185,7 +188,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
                   align="stretch"
                   maxH="70vh"
                   overflowY="auto"
-                  mt={8}
+                  mt={4}
                 >
                   {filteredNotes.map((note) => (
                     <Box
