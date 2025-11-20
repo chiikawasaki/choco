@@ -15,6 +15,7 @@ import {
 import { AlignJustify, Ellipsis, Trash2 } from "lucide-react";
 import { getUserNotes, deleteNote } from "@/lib/notes";
 import { toaster } from "@/components/ui/toaster";
+import Searchbar from "./Searchbar";
 
 interface Note {
   id: string;
@@ -33,6 +34,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // メモ一覧を取得
   const fetchNotes = async () => {
@@ -87,6 +89,15 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
     fetchNotes();
   }, []);
 
+  // 検索でフィルタリング
+  const filteredNotes = notes.filter((note) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      note.title.toLowerCase().includes(query) ||
+      note.content.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <Drawer.Root placement={"start"}>
       <Drawer.Trigger asChild>
@@ -95,40 +106,91 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
-          <Drawer.Content css={{ backgroundColor: "#ecf9ff", width: "400px" }}>
-            <Box p={4}>
-              <HStack justify="space-between" mb={4}>
-                <Text fontSize="xl" fontWeight="bold" color="#4338CA">
-                  メモ一覧
-                </Text>
+          <Drawer.Content css={{ backgroundColor: "#FEFDF9", width: "400px" }}>
+            <Box
+              position="absolute"
+              top="0"
+              left="0"
+              zIndex="1"
+              bg="#7B544F"
+              height="140px"
+              width="106px"
+              borderRadius="50px"
+            />
+            <Box
+              position="absolute"
+              top="0"
+              left="106px"
+              zIndex="1"
+              bg="#7B544F"
+              height="140px"
+              width="106px"
+              borderRadius="50px"
+            />
+            <Box
+              position="absolute"
+              top="0"
+              left="212px"
+              zIndex="1"
+              bg="#7B544F"
+              height="140px"
+              width="108px"
+              borderRadius="50px"
+            />
+            <Box
+              bg="#7B544F"
+              p={4}
+              borderBottom="1px"
+              borderColor="gray.300"
+              zIndex="1000"
+            >
+              <HStack justify="space-between" mb={3}>
                 <Drawer.CloseTrigger asChild>
-                  <CloseButton size="sm" />
+                  <CloseButton
+                    size="sm"
+                    color="white"
+                    _hover={{ bg: "transparent", color: "white" }}
+                  />
                 </Drawer.CloseTrigger>
               </HStack>
 
-              <Box borderBottom="1px" borderColor="gray.300" mb={4} />
+              {/* 検索バー */}
+              <Box mt={8}>
+                <Searchbar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="メモを検索..."
+                  width="270px"
+                />
+              </Box>
+            </Box>
 
+            <Box p={4}>
               {loading ? (
                 <Box display="flex" justifyContent="center" p={8}>
                   <Spinner size="lg" color="#4338CA" />
                 </Box>
-              ) : notes.length === 0 ? (
+              ) : filteredNotes.length === 0 ? (
                 <Box textAlign="center" p={8}>
                   <Text color="gray.500" fontSize="lg">
-                    まだメモがありません
+                    {searchQuery
+                      ? "検索結果がありません"
+                      : "まだメモがありません"}
                   </Text>
                   <Text color="gray.400" fontSize="sm" mt={2}>
-                    新しいメモを作成してみましょう！
+                    {searchQuery
+                      ? "別のキーワードで検索してみてください"
+                      : "新しいメモを作成してみましょう！"}
                   </Text>
                 </Box>
               ) : (
-                <VStack gap={3} align="stretch" maxH="70vh" overflowY="auto">
-                  {notes.map((note) => (
+                <VStack gap={3} align="stretch" maxH="70vh" overflowY="auto" mt={8}>
+                  {filteredNotes.map((note) => (
                     <Box
                       key={note.id}
                       pb={3}
                       px={3}
-                      bg="white"
+                      bg="#FFDFE4"
                       borderRadius="md"
                       shadow="sm"
                       border="1px"
@@ -219,7 +281,7 @@ const Sidebar = forwardRef<SidebarRef>((props, ref) => {
               )}
 
               {selectedNote && (
-                <Box mt={4} p={4} bg="white" borderRadius="md" shadow="md">
+                <Box mt={4} p={4} bg="#FFDFE4" borderRadius="md" shadow="md">
                   <Text fontSize="lg" fontWeight="bold" mb={2} color="#4338CA">
                     {selectedNote.title}
                   </Text>

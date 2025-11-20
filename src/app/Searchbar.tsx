@@ -1,8 +1,21 @@
 import { Box, Input, InputGroup } from "@chakra-ui/react";
 import { Search, SlidersHorizontal } from "lucide-react";
-const Searchbar = () => {
+
+interface SearchbarProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
+  width?: string;
+}
+
+const Searchbar = ({
+  value = "",
+  onChange,
+  placeholder = "キーワードを入力",
+  width = "300px",
+}: SearchbarProps) => {
   return (
-    <Box w="300px">
+    <Box w={width}>
       <InputGroup
         endElement={
           <Box display="flex" gap="0.5rem" color="#8B6F47">
@@ -12,7 +25,9 @@ const Searchbar = () => {
         }
       >
         <Input
-          placeholder="キーワードを入力"
+          placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange?.(e.target.value)}
           size="sm"
           color="#8B6F47"
           bg="#fefdf9"
